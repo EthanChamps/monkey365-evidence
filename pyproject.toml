@@ -9,7 +9,7 @@ description = "Capture read-only Microsoft 365 portal evidence for failed Monkey
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-dependencies = ["playwright>=1.50,<2"]
+dependencies = ["playwright>=1.50,<2", "beautifulsoup4>=4.12,<5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9", "ruff>=0.9,<1"]
@@ -19,6 +19,11 @@ monkey365-evidence = "monkey365_evidence.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/monkey365_evidence"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"controls.v7.json" = "monkey365_evidence/data/controls.v7.json"
+"monkey365-map.json" = "monkey365_evidence/data/monkey365-map.json"
+"monkey365-map.source.json" = "monkey365_evidence/data/monkey365-map.source.json"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

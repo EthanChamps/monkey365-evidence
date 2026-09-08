@@ -7,4 +7,10 @@ browser-profile/
 evidence/
 run-manifest.json
 *.local.json
+.playwright-cli/
+output/
+dist/
+monkey365_*.log
+monkey365_local_*.html
+monkey365[0-9a-f]*.json
 

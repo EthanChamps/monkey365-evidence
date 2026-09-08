@@ -1,0 +1,334 @@
+{
+  "benchmark": "CIS Microsoft 365 Foundations",
+  "version": "7.0.0",
+  "allowed_hosts": [
+    "admin.cloud.microsoft",
+    "admin.exchange.microsoft.com",
+    "admin.microsoft.com",
+    "admin.teams.microsoft.com",
+    "entra.microsoft.com",
+    "purview.microsoft.com",
+    "security.microsoft.com"
+  ],
+  "controls": [
+    {
+      "cis": "1.3.3",
+      "title": "External calendar sharing",
+      "start_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/Calendar",
+      "expected_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/Calendar",
+      "ready_selector": "input[aria-label^='Let your users share their calendars']",
+      "screenshot_selector": "[role=dialog] .ms-Panel-main",
+      "highlight_selectors": [
+        ".ms-Checkbox:has(input[aria-label^='Let your users share their calendars'])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "input[aria-label^='Let your users share their calendars']",
+          "checked": false
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "1.3.4",
+      "title": "User owned apps and services",
+      "start_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/Store",
+      "expected_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/Store",
+      "ready_selector": "input[aria-label^='Let users start trials']",
+      "screenshot_selector": "[role=dialog] .ms-Panel-main",
+      "expected_checks": [
+        {
+          "selector": "input[aria-label^='Let users access the']",
+          "checked": false,
+          "highlight_selector": ".ms-Checkbox:has(input[aria-label^='Let users access the'])"
+        },
+        {
+          "selector": "input[aria-label^='Let users start trials']",
+          "checked": false,
+          "highlight_selector": ".ms-Checkbox:has(input[aria-label^='Let users start trials'])"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "1.3.5",
+      "title": "Forms internal phishing protection",
+      "start_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/OfficeForms",
+      "expected_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/OfficeForms",
+      "ready_selector": "input[type=checkbox][aria-label^='Add internal phishing protection']",
+      "screenshot_selector": "[role=dialog] .ms-Panel-main",
+      "highlight_selectors": [
+        ".ms-Checkbox:has(input[aria-label^='Add internal phishing protection'])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "input[aria-label^='Add internal phishing protection']",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.1.2.2",
+      "title": "User application registration",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "[role=\"checkbox\"][aria-label=\"Users can register applications\"]",
+      "highlight_selectors": [
+        "[class*=\"formFieldHorizontalStyle\"]:has([role=\"checkbox\"][aria-label=\"Users can register applications\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role=\"checkbox\"][aria-label=\"Users can register applications\"]",
+          "checked": false
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.2.3",
+      "title": "Non-admin tenant creation",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "[role=\"checkbox\"][aria-label=\"Restrict non-admin users from creating tenants\"]",
+      "highlight_selectors": [
+        "[class*=\"formFieldHorizontalStyle\"]:has([role=\"checkbox\"][aria-label=\"Restrict non-admin users from creating tenants\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role=\"checkbox\"][aria-label=\"Restrict non-admin users from creating tenants\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.2.4",
+      "title": "Entra admin center access",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "[role=\"checkbox\"][aria-label=\"Restrict access to Microsoft Entra admin center\"]",
+      "highlight_selectors": [
+        "[class*=\"formFieldHorizontalStyle\"]:has([role=\"checkbox\"][aria-label=\"Restrict access to Microsoft Entra admin center\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role=\"checkbox\"][aria-label=\"Restrict access to Microsoft Entra admin center\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.2.5",
+      "title": "Keep user signed in prompt",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "[role=\"checkbox\"][aria-label=\"Show keep user signed in\"]",
+      "highlight_selectors": [
+        "[class*=\"formFieldHorizontalStyle\"]:has([role=\"checkbox\"][aria-label=\"Show keep user signed in\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role=\"checkbox\"][aria-label=\"Show keep user signed in\"]",
+          "checked": false
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.2.6",
+      "title": "LinkedIn account connections",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "role=radiogroup[name=/^Allow users to connect/] >> role=radio[name=\"No\"]",
+      "highlight_selectors": [
+        "role=radiogroup[name=/^Allow users to connect/]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=/^Allow users to connect/] >> role=radio[name=\"No\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.3.1",
+      "title": "User security group creation",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "[role=\"checkbox\"][aria-label=\"Users can create security groups\"]",
+      "highlight_selectors": [
+        "[class*=\"formFieldHorizontalStyle\"]:has([role=\"checkbox\"][aria-label=\"Users can create security groups\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role=\"checkbox\"][aria-label=\"Users can create security groups\"]",
+          "checked": false
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.4.6",
+      "title": "BitLocker recovery restriction",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "ready_selector": "div.fxc-weave-pccontrol:has-text(\"Restrict users from recovering the BitLocker key(s) for their owned devices\") [role=\"radiogroup\"] li[role=\"radio\"]:has(input[value=\"false\"])",
+      "highlight_selectors": [
+        "div.fxc-weave-pccontrol:has-text(\"Restrict users from recovering the BitLocker key(s) for their owned devices\") [role=\"radiogroup\"]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "div.fxc-weave-pccontrol:has-text(\"Restrict users from recovering the BitLocker key(s) for their owned devices\") [role=\"radiogroup\"] li[role=\"radio\"]:has(input[value=\"false\"])",
+          "checked": true,
+          "highlight_selector": "div.fxc-weave-pccontrol:has-text(\"Restrict users from recovering the BitLocker key(s) for their owned devices\") [role=\"radiogroup\"]"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.1.5.1",
+      "title": "User consent to applications",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/ConsentPolicies",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ConsentPoliciesMenuBlade/~/UserSettings",
+      "ready_selector": "li[role=\"radio\"]:has(input[type=\"radio\"][value=\"No\"])",
+      "highlight_selectors": [
+        "[role=\"radiogroup\"]:has(input[value=\"No\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "li[role=\"radio\"]:has(input[type=\"radio\"][value=\"No\"])",
+          "checked": true,
+          "highlight_selector": "[role=\"radiogroup\"]:has(input[value=\"No\"])"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.1.6.2",
+      "title": "Guest directory access",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/UserSettings/menuId/",
+      "frame_selector": "iframe[name=\"UserSettings.ReactView\"]",
+      "ready_selector": "role=radio[name=\"Guest users have the same access as members (most inclusive)\"]",
+      "highlight_selectors": [
+        "role=radiogroup[name=/^Guest user access restrictions/]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radio[name=\"Guest users have the same access as members (most inclusive)\"]",
+          "checked": false
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.6.3",
+      "title": "Guest invitation restrictions",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/Settings/menuId/ExternalIdentitiesGettingStarted",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/CompanyRelationshipsMenuBlade/~/Settings/menuId/ExternalIdentitiesGettingStarted",
+      "ready_selector": "li[role=\"radio\"]:has(input[value=\"everyone\"])",
+      "highlight_selectors": [
+        "[role=\"radiogroup\"]:has(input[value=\"adminsGuestInvitersAndAllMembers\"])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "li[role=\"radio\"]:has(input[value=\"everyone\"])",
+          "checked": false,
+          "highlight_selector": "[role=\"radiogroup\"]:has(input[value=\"adminsGuestInvitersAndAllMembers\"])"
+        },
+        {
+          "selector": "li[role=\"radio\"]:has(input[value=\"adminsGuestInvitersAndAllMembers\"])",
+          "checked": false,
+          "highlight_selector": "[role=\"radiogroup\"]:has(input[value=\"adminsGuestInvitersAndAllMembers\"])"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.2.3.2",
+      "title": "Custom banned password list",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/PasswordProtection/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/PasswordProtection/fromNav/",
+      "ready_selector": "role=radiogroup[name=\"Enforce custom list\"] >> role=radio[name=\"Yes\"]",
+      "highlight_selectors": [
+        "[class*=\"OptionsGroupField\"]:has-text(\"Enforce custom list\"):has([role=\"radio\"][aria-checked=\"true\"]:has-text(\"No\"))"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=\"Enforce custom list\"] >> role=radio[name=\"Yes\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.2.4.2",
+      "title": "Password reset methods required",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/PasswordResetMenuBlade/~/AuthenticationMethods/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/PasswordResetMenuBlade/~/AuthenticationMethods/fromNav/",
+      "ready_selector": "role=radiogroup[name=\"Number of methods required to reset\"] >> role=radio[name=\"2\"]",
+      "highlight_selectors": [
+        "role=radiogroup[name=\"Number of methods required to reset\"]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=\"Number of methods required to reset\"] >> role=radio[name=\"2\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.2.4.5",
+      "title": "Admin password reset notifications",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/PasswordResetMenuBlade/~/Notifications/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/PasswordResetMenuBlade/~/Notifications/fromNav/",
+      "ready_selector": "role=radiogroup[name=\"Notify all admins when other admins reset their password?\"] >> role=radio[name=\"Yes\"]",
+      "highlight_selectors": [
+        "role=radiogroup[name=\"Notify all admins when other admins reset their password?\"]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=\"Notify all admins when other admins reset their password?\"] >> role=radio[name=\"Yes\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    }
+  ]
+}
