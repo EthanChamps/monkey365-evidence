@@ -137,6 +137,11 @@ def evaluate_audit(cis: str, data: Any) -> Evaluation:
             return Evaluation("unknown", detail=f"{key} is missing, null, or not a boolean")
         if value != expected:
             return _failure([term], failure_detail)
+        if cis == "6.2.3":
+            return Evaluation(
+                "unknown",
+                detail="External sender identification is enabled; AllowList exceptions require review",
+            )
         return Evaluation("no_failure", detail=pass_detail)
 
     if cis == "6.1.3":
@@ -148,6 +153,62 @@ def evaluate_audit(cis: str, data: Any) -> Evaluation:
             terms = [json.dumps(item, ensure_ascii=False) for item in bypassed]
             return _failure(terms, "One or more mailboxes bypass mailbox auditing")
         return Evaluation("no_failure", detail="No mailboxes bypass mailbox auditing")
+
+    if cis == "6.1.2":
+        records = _records(data, ("AuditEnabled", "AuditAdmin", "AuditDelegate", "AuditOwner"))
+        if records is None:
+            return Evaluation("unknown", detail="User mailbox audit records are missing")
+        required = {
+            "AuditAdmin": {"Copy", "FolderBind", "Move"},
+            "AuditDelegate": {"FolderBind", "Move"},
+            "AuditOwner": {"Create", "MailboxLogin", "Move"},
+        }
+        terms: list[str] = []
+        for record in records:
+            enabled = _record_entry(record, "AuditEnabled")
+            if enabled is None or type(enabled[1]) is not bool:
+                return Evaluation("unknown", detail="AuditEnabled is missing or malformed")
+            if not enabled[1]:
+                terms.append(_term(enabled[0], enabled[1]))
+            for key, expected_actions in required.items():
+                entry = _record_entry(record, key)
+                if entry is None or not isinstance(entry[1], list):
+                    return Evaluation("unknown", detail=f"{key} is missing or malformed")
+                missing = sorted(expected_actions - set(entry[1]))
+                terms.extend(json.dumps(action) for action in missing)
+        if terms:
+            return _failure(terms, "One or more user mailboxes are missing required audit actions")
+        return Evaluation("no_failure", detail="All user mailboxes include the required audit actions")
+
+    if cis in {"6.2.1", "6.2.2"}:
+        list_key = "RedirectRules" if cis == "6.2.1" else "ViolatingRules"
+        entries = _entries(data, list_key)
+        if len(entries) != 1 or not isinstance(entries[0][1], list):
+            return Evaluation("unknown", detail=f"{list_key} is missing, null, or not a list")
+        records = entries[0][1]
+        if cis == "6.2.2":
+            if records:
+                return _failure(
+                    [json.dumps(item, ensure_ascii=False) for item in records],
+                    "Transport rules whitelist sender domains by setting SCL to -1",
+                )
+            return Evaluation("no_failure", detail="No domain-whitelisting transport rules were found")
+        policies = _records(data.get("OutboundPolicies") if isinstance(data, dict) else None,
+                            ("AutoForwardingMode",))
+        if policies is None:
+            return Evaluation("unknown", detail="Outbound forwarding policies are missing")
+        modes = [_record_entry(policy, "AutoForwardingMode") for policy in policies]
+        if any(entry is None or not isinstance(entry[1], str) for entry in modes):
+            return Evaluation("unknown", detail="AutoForwardingMode is missing or malformed")
+        bad_modes = [entry for entry in modes if entry[1].casefold() != "off"]
+        if bad_modes:
+            return _failure(
+                [_term(entry[0], entry[1]) for entry in bad_modes],
+                "Automatic forwarding is enabled in an outbound spam policy",
+            )
+        if records:
+            return Evaluation("unknown", detail="Redirect rules require review for external domains")
+        return Evaluation("no_failure", detail="Forwarding policies are off and no redirect rules were found")
 
     if cis == "2.1.3":
         records = _records(data, ("EnableInternalSenderAdminNotifications", "InternalSenderAdminAddress"))
