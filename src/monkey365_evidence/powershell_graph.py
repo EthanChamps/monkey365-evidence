@@ -164,7 +164,9 @@ def run_audits(
             "try {",
             f" $data = @({spec.script})",
             " $json = ConvertTo-Json -InputObject $data -Depth 20",
-            f" $records += [pscustomobject]@{{cis='{spec.cis}';command='{command}';output=$json;data=(ConvertFrom-Json -InputObject $json -NoEnumerate);status='collected';error=$null}}",
+            # An object wrapper preserves empty/singleton arrays on PowerShell 5.1 too.
+            " $plain = ConvertFrom-Json -InputObject ('{\"items\":' + $json + '}')",
+            f" $records += [pscustomobject]@{{cis='{spec.cis}';command='{command}';output=$json;data=$plain.items;status='collected';error=$null}}",
             "} catch {",
             f" $records += [pscustomobject]@{{cis='{spec.cis}';command='{command}';output='';data=$null;status='failed';error=$_.Exception.Message}}",
             "}",

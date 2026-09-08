@@ -170,6 +170,8 @@ def _main() -> int:
     def completed(result):
         results.append(result)
         checkpoint()
+        if result.status in {"failed", "skipped"}:
+            print(f"CIS {result.cis}: {result.status}: {result.detail or 'No error detail available'}")
 
     checkpoint()
     interrupted = False
