@@ -471,6 +471,69 @@
       "enabled": true
     },
     {
+      "cis": "5.2.3.5",
+      "title": "Weak authentication methods",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods/fromNav/",
+      "ready_selector": "[role='row']:has-text('SMS')",
+      "expected_checks": [
+        {
+          "selector": "[role='row']:has-text('SMS')",
+          "text": "No",
+          "highlight_selector": "[role='row']:has-text('SMS')"
+        },
+        {
+          "selector": "[role='row']:has-text('Voice call')",
+          "text": "No",
+          "highlight_selector": "[role='row']:has-text('Voice call')"
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.2.3.6",
+      "title": "System-preferred multifactor authentication",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/Settings/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/Settings/fromNav/",
+      "ready_selector": "[role='row']:has-text('System-preferred multifactor authentication')",
+      "expected_checks": [
+        {
+          "selector": "[role='row']:has-text('System-preferred multifactor authentication')",
+          "text": "Enabled",
+          "highlight_selector": "[role='row']:has-text('System-preferred multifactor authentication')"
+        },
+        {
+          "selector": "[role='row']:has-text('System-preferred multifactor authentication')",
+          "text": "All users",
+          "highlight_selector": "[role='row']:has-text('System-preferred multifactor authentication')"
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.2.3.7",
+      "title": "Email OTP authentication method",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods/fromNav/",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/AdminAuthMethods/fromNav/",
+      "ready_selector": "[role='row']:has-text('Email OTP')",
+      "highlight_selectors": [
+        "[role='row']:has-text('Email OTP')"
+      ],
+      "expected_checks": [
+        {
+          "selector": "[role='row']:has-text('Email OTP')",
+          "text": "No"
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
       "cis": "5.2.3.8",
       "title": "Account lockout threshold",
       "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/PasswordProtection/fromNav/",

@@ -178,9 +178,9 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
                 sha256=hashlib.sha256(destination.read_bytes()).hexdigest(), url=page.url,
             )
         if failing_checks and all(check.get("highlight_selector") for check in failing_checks):
-            control = replace(control, highlight_selectors=tuple(
+            control = replace(control, highlight_selectors=tuple(dict.fromkeys(
                 check["highlight_selector"] for check in failing_checks
-            ))
+            )))
         marked = screenshot_control(page, control, destination)
         return CaptureResult(
             control.cis, "captured", destination,
