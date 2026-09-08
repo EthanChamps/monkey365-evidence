@@ -7,6 +7,7 @@ but cannot supply PowerShell source or arbitrary command arguments.
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import tempfile
 from collections.abc import Callable
@@ -32,6 +33,13 @@ class AuditResult:
     data: Any
     status: str
     error: str | None = None
+
+
+def powershell_executable(preferred: str) -> str:
+    """Prefer PowerShell 7, with Windows PowerShell as the local fallback."""
+    if preferred != "pwsh":
+        return preferred
+    return "pwsh" if shutil.which("pwsh") else "powershell.exe"
 
 
 _REGISTRY: tuple[AuditSpec, ...] = (
@@ -143,7 +151,7 @@ def run_audits(
                                      dir=output_dir, encoding="utf-8", delete=False) as result_file:
         result_path = Path(result_file.name)
     script_path.write_text(_script(selected, str(result_path), tenantorganization), encoding="utf-8")
-    argv = [pwsh, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+    argv = [powershell_executable(pwsh), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
             str(script_path)]
     if tenantorganization:
         argv.extend(["-TenantOrganization", tenantorganization])

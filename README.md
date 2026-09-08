@@ -95,6 +95,8 @@ Install `ExchangeOnlineManagement` in PowerShell before using Exchange audits.
 Graph audits use `Microsoft.Graph.Authentication`, `Microsoft.Graph.Identity.SignIns`,
 `Microsoft.Graph.Reports`, `Microsoft.Graph.Groups`, `Microsoft.Graph.Users`, and
 `Microsoft.Graph.Identity.DirectoryManagement`.
+PowerShell 7 is used when available; on Windows the collector falls back to the
+built-in `powershell.exe` when PowerShell 7 is not installed.
 Authentication may prompt for sign-in. `ExpectedTenantId` stops PowerShell
 collection if the connected organization differs. `TestRun` labels the run as
 route testing, useful when testing checks from a report against another tenant;

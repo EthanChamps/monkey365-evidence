@@ -9,7 +9,7 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
-from .powershell_audit import AuditResult, AuditSpec
+from .powershell_audit import AuditResult, AuditSpec, powershell_executable
 
 _CONTEXT = "$ctx=Get-MgContext; if (-not $ctx) { throw 'Microsoft Graph sign-in did not create a context' }"
 _READ_SCOPES = (
@@ -173,7 +173,7 @@ def run_audits(
     try:
         done = runner(
             [
-                pwsh,
+                powershell_executable(pwsh),
                 "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
