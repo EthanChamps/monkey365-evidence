@@ -6,6 +6,12 @@ from pathlib import Path
 from typing import Any
 
 
+def evidence_filename(cis: str, title: str, extension: str) -> str:
+    safe = "".join(c if c.isalnum() or c in " ._-" else "_" for c in title)
+    number = re.sub(r"[^A-Za-z0-9._-]", "_", cis)
+    return f"{number} {safe.strip()[:140].rstrip(' .')}.{extension}"
+
+
 @dataclass(frozen=True)
 class Control:
     cis: str
@@ -23,9 +29,7 @@ class Control:
 
     @property
     def filename(self) -> str:
-        safe = "".join(c if c.isalnum() or c in " ._-" else "_" for c in self.title)
-        cis = re.sub(r"[^A-Za-z0-9._-]", "_", self.cis)
-        return f"{cis} {safe.strip()[:140]}.png"
+        return evidence_filename(self.cis, self.title, "png")
 
 
 @dataclass(frozen=True)

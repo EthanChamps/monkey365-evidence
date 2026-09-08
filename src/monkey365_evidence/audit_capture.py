@@ -13,7 +13,7 @@ from .defender_attachments import evaluate_attachment_filtering
 from .defender_limits import evaluate_limits
 from .defender_policy_evaluation import evaluate_defender
 from .graph_evaluation import evaluate_graph
-from .models import CaptureResult
+from .models import CaptureResult, evidence_filename
 from .powershell_audit import AuditResult, run_audits
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 from .powershell_graph import run_audits as run_graph_audits
@@ -24,6 +24,7 @@ def render_audit_results(
     output_dir: Path,
     *,
     on_result: Callable[[CaptureResult], None],
+    titles: dict[str, str] | None = None,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     for audit in audits:
@@ -31,7 +32,8 @@ def render_audit_results(
             on_result(CaptureResult(audit.cis, "failed",
                                     detail=audit.error or "No audit output collected"))
             continue
-        destination = output_dir / f"{audit.cis} PowerShell.txt"
+        title = (titles or {}).get(audit.cis, "Audit evidence")
+        destination = output_dir / evidence_filename(audit.cis, title, "txt")
         try:
             if audit.cis in GRAPH_AUDITS:
                 evaluation = evaluate_graph(audit.cis, audit.data)
@@ -65,22 +67,24 @@ def capture_audits(
     tenantorganization: str | None,
     on_result: Callable[[CaptureResult], None],
     expected_tenant_id: str | None = None,
+    titles: dict[str, str] | None = None,
 ) -> None:
     audits = run_audits(control_ids, output_dir, tenantorganization=tenantorganization,
                        expected_tenant_id=expected_tenant_id)
     raw_path = output_dir / "powershell-results.local.json"
     with raw_path.open("x", encoding="utf-8") as stream:
         json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
-    render_audit_results(audits, output_dir, on_result=on_result)
+    render_audit_results(audits, output_dir, on_result=on_result, titles=titles)
 
 
 def capture_graph_audits(
     control_ids: list[str], output_dir: Path, *,
     expected_tenant_id: str | None, client_id: str | None,
     on_result: Callable[[CaptureResult], None],
+    titles: dict[str, str] | None = None,
 ) -> None:
     audits = run_graph_audits(control_ids, output_dir,
                              expected_tenant_id=expected_tenant_id, client_id=client_id)
     with (output_dir / "graph-results.local.json").open("x", encoding="utf-8") as stream:
         json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
-    render_audit_results(audits, output_dir, on_result=on_result)
+    render_audit_results(audits, output_dir, on_result=on_result, titles=titles)

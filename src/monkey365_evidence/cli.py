@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -93,6 +93,14 @@ def _main() -> int:
         print(f"Valid manifest: {len(controls)} controls, {len(hosts)} allowed hosts")
         return 0
     rules, mapping, mapped, chosen, findings = selected_controls(args, controls)
+    titles = {cis: control.title for cis, control in controls.items()}
+    for finding in findings:
+        info = finding.record.get("findingInfo")
+        title = info.get("title") if isinstance(info, dict) else None
+        cis = mapping.get(finding.rule_id)
+        if cis and isinstance(title, str) and title.strip():
+            titles[cis] = title.strip()
+    chosen = [replace(control, title=titles[control.cis]) for control in chosen]
     audit_ids = sorted(mapped & AUDITS.keys()) if args.powershell else []
     graph_controls = sorted(mapped & GRAPH_AUDITS.keys()) if args.powershell else []
     graph_ids = graph_controls
@@ -171,10 +179,10 @@ def _main() -> int:
             on_result=completed, storage_state=args.storage_state)),
         (audit_ids, lambda: capture_audits(
             audit_ids, run_dir, tenantorganization=args.tenant_organization,
-            expected_tenant_id=args.expected_tenant_id, on_result=completed)),
+            expected_tenant_id=args.expected_tenant_id, on_result=completed, titles=titles)),
         (graph_ids, lambda: capture_graph_audits(
             graph_ids, run_dir, expected_tenant_id=args.expected_tenant_id,
-            client_id=args.graph_client_id, on_result=completed)),
+            client_id=args.graph_client_id, on_result=completed, titles=titles)),
     ]
     try:
         for phase_ids, run_phase in phases:

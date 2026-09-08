@@ -59,7 +59,10 @@ monkey365-evidence capture `
   --profile browser-profile
 ```
 
-Every run creates a timestamped folder under `evidence`, containing evidence files and
+Every run creates a timestamped folder under `evidence`, with evidence files named
+`<CIS finding number> <finding name>.png` or `.txt`.
+Finding names come from the supplied report; unsupported filename characters are replaced.
+Each run also contains
 `run-manifest.json` with captured, skipped, failed, and review-needed controls.
 The report includes evidence SHA-256 hashes and whether red outlines were added.
 It is checkpointed after each capture so completed results survive an interruption.
