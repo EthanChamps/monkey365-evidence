@@ -80,10 +80,18 @@ def load_manifest(path: Path) -> tuple[set[str], dict[str, Control]]:
         checks = raw.get("expected_checks", [])
         if not isinstance(checks, list) or any(
             not isinstance(check, dict) or not isinstance(check.get("selector"), str)
-            or not check["selector"] or type(check.get("checked")) is not bool
+            or not check["selector"] or not any(
+                key in check for key in ("checked", "value", "min_value", "max_value", "not_value")
+            ) or ("checked" in check and type(check["checked"]) is not bool)
+            or any(key in check and not isinstance(check[key], (int, float))
+                   for key in ("min_value", "max_value"))
+            or any(key in check and not isinstance(check[key], str)
+                   for key in ("value", "not_value"))
             for check in checks
         ):
-            raise ValueError(f"{cis}: expected_checks require selector and boolean checked")
+            raise ValueError(
+                f"{cis}: expected_checks require a selector and a checked/value comparison"
+            )
         if len(checks) > 1 and any(not isinstance(check.get("highlight_selector"), str)
                                    or not check["highlight_selector"] for check in checks):
             raise ValueError(f"{cis}: multiple expected_checks each require highlight_selector")

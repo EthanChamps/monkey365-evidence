@@ -104,6 +104,28 @@ def screenshot_control(page: Page, control: Control, destination: Path) -> bool:
             })""", old)
 
 
+def setting_matches(locator: Locator, check: dict) -> bool:
+    """Compare a visible form setting without changing it."""
+    if "checked" in check and locator.is_checked() != check["checked"]:
+        return False
+    if any(key in check for key in ("value", "not_value", "min_value", "max_value")):
+        actual = locator.input_value().strip()
+        if "value" in check and actual != check["value"]:
+            return False
+        if "not_value" in check and actual == check["not_value"]:
+            return False
+        if "min_value" in check or "max_value" in check:
+            try:
+                number = float(actual)
+            except ValueError:
+                return False
+            if "min_value" in check and number < check["min_value"]:
+                return False
+            if "max_value" in check and number > check["max_value"]:
+                return False
+    return True
+
+
 def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
                  *, retry_timeout: bool = True) -> CaptureResult:
     try:
@@ -136,7 +158,7 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
         for check in control.expected_checks:
             setting = scope.locator(check["selector"])
             wait_for_rendered(page, setting)
-            if setting.is_checked() != check["checked"]:
+            if not setting_matches(setting, check):
                 failing_checks.append(check)
         if control.expected_checks and not failing_checks:
             screenshot_control(page, replace(control, highlight_selectors=()), destination)
