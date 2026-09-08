@@ -59,7 +59,7 @@ def install_modules(
     quoted = ", ".join(f"'{module}'" for module in modules)
     command = (
         "$ErrorActionPreference='Stop'; "
-        "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null; "
+        "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force | Out-Null; "
         f"Install-Module -Name @({quoted}) -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
     )
     completed = runner(
