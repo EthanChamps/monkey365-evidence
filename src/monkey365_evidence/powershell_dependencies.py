@@ -18,11 +18,13 @@ GRAPH_MODULES = (
     "Microsoft.Graph.Identity.DirectoryManagement",
 )
 TEAMS_MODULES = ("MicrosoftTeams",)
+FABRIC_MODULES = ("Az.Accounts",)
 
 
-def required_modules(*, exchange: bool, graph: bool, teams: bool = False) -> tuple[str, ...]:
+def required_modules(*, exchange: bool, graph: bool, teams: bool = False,
+                     fabric: bool = False) -> tuple[str, ...]:
     return ((EXCHANGE_MODULES if exchange else ()) + (GRAPH_MODULES if graph else ())
-            + (TEAMS_MODULES if teams else ()))
+            + (TEAMS_MODULES if teams else ()) + (FABRIC_MODULES if fabric else ()))
 
 
 def missing_modules(
@@ -73,12 +75,13 @@ def install_modules(
 
 
 def ensure_modules(
-    *, exchange: bool, graph: bool, teams: bool = False, interactive: bool,
+    *, exchange: bool, graph: bool, teams: bool = False, fabric: bool = False,
+    interactive: bool,
     input_fn: Callable[[str], str] = input,
     output_fn: Callable[[str], None] = print,
 ) -> None:
     """Prompt before installing missing dependencies, then verify the installation."""
-    required = required_modules(exchange=exchange, graph=graph, teams=teams)
+    required = required_modules(exchange=exchange, graph=graph, teams=teams, fabric=fabric)
     missing = missing_modules(required)
     if not missing:
         return

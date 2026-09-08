@@ -12,9 +12,12 @@ from .audit_evaluation import evaluate_audit
 from .defender_attachments import evaluate_attachment_filtering
 from .defender_limits import evaluate_limits
 from .defender_policy_evaluation import evaluate_defender
+from .fabric_evaluation import evaluate_fabric
 from .graph_evaluation import evaluate_graph
 from .models import CaptureResult, evidence_filename
 from .powershell_audit import AuditResult, run_audits
+from .powershell_fabric import REGISTRY as FABRIC_AUDITS
+from .powershell_fabric import run_audits as run_fabric_audits
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 from .powershell_graph import run_audits as run_graph_audits
 from .powershell_teams import REGISTRY as TEAMS_AUDITS
@@ -40,6 +43,8 @@ def render_audit_results(
         try:
             if audit.cis in GRAPH_AUDITS:
                 evaluation = evaluate_graph(audit.cis, audit.data)
+            elif audit.cis in FABRIC_AUDITS:
+                evaluation = evaluate_fabric(audit.cis, audit.data)
             elif audit.cis in TEAMS_AUDITS:
                 evaluation = evaluate_teams(audit.cis, audit.data)
             elif audit.cis == "2.1.15":
@@ -101,5 +106,15 @@ def capture_teams_audits(
 ) -> None:
     audits = run_teams_audits(control_ids, output_dir, expected_tenant_id=expected_tenant_id)
     with (output_dir / "teams-results.local.json").open("x", encoding="utf-8") as stream:
+        json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
+    render_audit_results(audits, output_dir, on_result=on_result, titles=titles)
+
+
+def capture_fabric_audits(
+    control_ids: list[str], output_dir: Path, *, expected_tenant_id: str | None,
+    on_result: Callable[[CaptureResult], None], titles: dict[str, str] | None = None,
+) -> None:
+    audits = run_fabric_audits(control_ids, output_dir, expected_tenant_id=expected_tenant_id)
+    with (output_dir / "fabric-results.local.json").open("x", encoding="utf-8") as stream:
         json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
     render_audit_results(audits, output_dir, on_result=on_result, titles=titles)
