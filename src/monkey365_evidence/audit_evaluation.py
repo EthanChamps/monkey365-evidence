@@ -123,6 +123,32 @@ def evaluate_audit(cis: str, data: Any) -> Evaluation:
             return Evaluation("unknown", detail="AdditionalStorageProvidersAvailable is missing, null, or not a boolean")
         return _failure([term], "Additional storage providers are enabled") if value else Evaluation("no_failure", detail="Additional storage providers are disabled")
 
+    if cis in {"6.1.1", "6.2.3", "6.5.5"}:
+        key, expected, failure_detail, pass_detail = {
+            "6.1.1": ("AuditDisabled", False, "Microsoft 365 auditing is disabled",
+                      "Microsoft 365 auditing is enabled"),
+            "6.2.3": ("Enabled", True, "External sender identification is disabled",
+                      "External sender identification is enabled"),
+            "6.5.5": ("RejectDirectSend", True, "Direct Send submissions are not rejected",
+                      "Direct Send submissions are rejected"),
+        }[cis]
+        value, term = _one_bool(data, key)
+        if value is None:
+            return Evaluation("unknown", detail=f"{key} is missing, null, or not a boolean")
+        if value != expected:
+            return _failure([term], failure_detail)
+        return Evaluation("no_failure", detail=pass_detail)
+
+    if cis == "6.1.3":
+        entries = _entries(data, "BypassedMailboxes")
+        if len(entries) != 1 or not isinstance(entries[0][1], list):
+            return Evaluation("unknown", detail="BypassedMailboxes is missing, null, or not a list")
+        bypassed = entries[0][1]
+        if bypassed:
+            terms = [json.dumps(item, ensure_ascii=False) for item in bypassed]
+            return _failure(terms, "One or more mailboxes bypass mailbox auditing")
+        return Evaluation("no_failure", detail="No mailboxes bypass mailbox auditing")
+
     if cis == "2.1.3":
         records = _records(data, ("EnableInternalSenderAdminNotifications", "InternalSenderAdminAddress"))
         if records is None:
