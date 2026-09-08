@@ -263,4 +263,58 @@ def evaluate_audit(cis: str, data: Any) -> Evaluation:
             return _failure([json.dumps(item, ensure_ascii=False) for item in offending], f"{key} contains entries; every policy must have an empty list")
         return Evaluation("no_failure", detail=f"{key} is empty for every policy")
 
+    if cis == "1.2.2":
+        records = _records(data, ("AccountDisabled",))
+        if records is None:
+            return Evaluation("unknown", detail="Shared mailbox account records are missing")
+        bad = []
+        for record in records:
+            entry = _record_entry(record, "AccountDisabled")
+            if entry is None or type(entry[1]) is not bool:
+                return Evaluation("unknown", detail="A shared mailbox lacks a boolean AccountDisabled value")
+            if entry[1] is False:
+                bad.append(json.dumps(record, ensure_ascii=False))
+        return (_failure(bad, "One or more shared mailbox accounts are enabled") if bad
+                else Evaluation("no_failure", detail="All returned shared mailbox accounts are disabled"))
+
+    if cis in {"2.1.5", "2.1.13", "3.1.1"}:
+        rules = {
+            "2.1.5": (("EnableATPForSPOTeamsODB", True), ("EnableSafeDocs", True),
+                      ("AllowSafeDocsOpen", False)),
+            "2.1.13": (("EnableSafeList", False),),
+            "3.1.1": (("UnifiedAuditLogIngestionEnabled", True),),
+        }[cis]
+        failures = []
+        for key, expected in rules:
+            value, term = _one_bool(data, key)
+            if value is None:
+                return Evaluation("unknown", detail=f"{key} is missing or malformed")
+            if value != expected:
+                failures.append(term)
+        if failures:
+            return _failure(failures, "One or more required settings do not match CIS")
+        if cis == "3.1.1":
+            return Evaluation("unknown", detail="Audit ingestion is enabled; confirm a recent audit search returns results")
+        return Evaluation("no_failure", detail="Returned settings match CIS")
+
+    if cis == "2.1.9":
+        records = _records(data, ("Enabled", "Status"))
+        if records is None:
+            return Evaluation("unknown", detail="DKIM domain records are missing")
+        bad = []
+        for record in records:
+            enabled, status = _record_entry(record, "Enabled"), _record_entry(record, "Status")
+            if enabled is None or status is None or type(enabled[1]) is not bool or not isinstance(status[1], str):
+                return Evaluation("unknown", detail="A DKIM record is malformed")
+            if not enabled[1] or status[1].casefold() != "valid":
+                bad.append(json.dumps(record, ensure_ascii=False))
+        return (_failure(bad, "One or more custom domains do not have valid, enabled DKIM") if bad
+                else Evaluation("no_failure", detail="All returned custom domains have valid, enabled DKIM"))
+
+    if cis in {"2.1.2", "2.1.4", "2.1.8", "2.1.10", "2.4.2", "2.4.4",
+               "3.2.1", "3.2.2", "3.2.3", "3.3.1"}:
+        if data is None or data == []:
+            return Evaluation("failure", ("[]",), "The required policy or domain evidence was not returned")
+        return Evaluation("unknown", detail="Evidence was collected; policy scope, priority, domains, or exceptions require review")
+
     return Evaluation("unknown", detail=f"No evaluator is defined for CIS control {cis}")
