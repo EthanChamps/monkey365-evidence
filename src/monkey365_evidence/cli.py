@@ -14,6 +14,7 @@ from .manifest import load_manifest
 from .models import CaptureResult
 from .monkey365 import import_rule_map, load_failed_findings, load_rule_map
 from .powershell_audit import REGISTRY as AUDITS
+from .powershell_dependencies import ensure_modules
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 
 
@@ -112,6 +113,9 @@ def _main() -> int:
         print(f"  CIS {cis} - PowerShell Command/Output")
     if args.command == "plan":
         return 2 if unmapped_rules or missing_routes or disabled else 0
+    if powershell_ids:
+        ensure_modules(exchange=bool(audit_ids), graph=bool(graph_ids),
+                       interactive=not args.non_interactive)
     run_dir = args.output / datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
     run_dir.mkdir(parents=True, exist_ok=False)
     results = [CaptureResult(cis, "skipped", detail="Route is disabled") for cis in disabled]

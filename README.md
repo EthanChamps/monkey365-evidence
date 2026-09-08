@@ -91,10 +91,10 @@ Invoke-Monkey365Evidence -Monkey365Output .\report.html -PowerShellAudits `
   -ExpectedTenantId '<tenant GUID>' -TestRun
 ```
 
-Install `ExchangeOnlineManagement` in PowerShell before using Exchange audits.
-Graph audits use `Microsoft.Graph.Authentication`, `Microsoft.Graph.Identity.SignIns`,
-`Microsoft.Graph.Reports`, `Microsoft.Graph.Groups`, `Microsoft.Graph.Users`, and
-`Microsoft.Graph.Identity.DirectoryManagement`.
+Before a PowerShell capture starts, the tool checks for its Exchange Online and
+Microsoft Graph modules. If any are missing, it lists them and asks whether to
+install the fixed modules from PSGallery for the current Windows user. Answer `Y`
+to install them or `N` to stop before evidence collection begins.
 PowerShell 7 is used when available; on Windows the collector falls back to the
 built-in `powershell.exe` when PowerShell 7 is not installed.
 Authentication may prompt for sign-in. `ExpectedTenantId` stops PowerShell
