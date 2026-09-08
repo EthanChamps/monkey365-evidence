@@ -16,6 +16,7 @@ from .monkey365 import import_rule_map, load_failed_findings, load_rule_map
 from .powershell_audit import REGISTRY as AUDITS
 from .powershell_dependencies import ensure_modules
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
+from .source_evidence import capture_source_findings
 
 
 def selected_controls(args, controls):
@@ -74,6 +75,8 @@ def _main() -> int:
                          help="Abort PowerShell audits if the connected tenant differs")
     capture.add_argument("--graph-client-id",
                          help="Use an existing authorised Graph application with its default scopes")
+    capture.add_argument("--live-graph", action="store_true",
+                         help="Recheck Graph controls live instead of using their Monkey365 export records")
     capture.add_argument("--test-run", action="store_true",
                          help="Label results as route tests rather than source-tenant evidence")
     capture.add_argument("--non-interactive", action="store_true",
@@ -92,8 +95,13 @@ def _main() -> int:
         return 0
     rules, mapping, mapped, chosen, findings = selected_controls(args, controls)
     audit_ids = sorted(mapped & AUDITS.keys()) if args.powershell else []
-    graph_ids = sorted(mapped & GRAPH_AUDITS.keys()) if args.powershell else []
-    powershell_ids = set(audit_ids) | set(graph_ids)
+    live_graph = getattr(args, "live_graph", False)
+    graph_controls = sorted(mapped & GRAPH_AUDITS.keys()) if args.powershell else []
+    graph_ids = graph_controls if live_graph else []
+    source_graph_ids = graph_controls if not live_graph else []
+    if getattr(args, "graph_client_id", None) and not live_graph:
+        raise ValueError("--graph-client-id requires --live-graph")
+    powershell_ids = set(audit_ids) | set(graph_controls)
     chosen = [control for control in chosen if control.cis not in powershell_ids]
     unmapped_rules = sorted(rules - mapping.keys())
     missing_routes = sorted(mapped - controls.keys() - powershell_ids)
@@ -110,7 +118,8 @@ def _main() -> int:
     for control in chosen:
         print(f"  CIS {control.cis} - {control.title}")
     for cis in sorted(powershell_ids):
-        print(f"  CIS {cis} - PowerShell Command/Output")
+        label = "PowerShell Command/Output" if cis not in source_graph_ids else "Monkey365 export evidence"
+        print(f"  CIS {cis} - {label}")
     if args.command == "plan":
         return 2 if unmapped_rules or missing_routes or disabled else 0
     if powershell_ids:
@@ -142,7 +151,8 @@ def _main() -> int:
         "missing_routes": missing_routes,
         "disabled_routes": disabled,
         "powershell_controls": sorted(powershell_ids),
-        "graph_controls": graph_ids,
+        "graph_controls": graph_controls,
+        "graph_evidence_source": "live_graph" if live_graph else "monkey365_export",
     }
     destination = run_dir / "run-manifest.json"
     def checkpoint(status="running"):
@@ -168,6 +178,11 @@ def _main() -> int:
         (audit_ids, lambda: capture_audits(
             audit_ids, run_dir, tenantorganization=args.tenant_organization,
             expected_tenant_id=args.expected_tenant_id, on_result=completed)),
+        (source_graph_ids, lambda: capture_source_findings(
+            source_graph_ids,
+            {mapping[finding.rule_id]: finding for finding in findings
+             if mapping.get(finding.rule_id) in source_graph_ids},
+            run_dir, on_result=completed)),
         (graph_ids, lambda: capture_graph_audits(
             graph_ids, run_dir, expected_tenant_id=args.expected_tenant_id,
             client_id=args.graph_client_id, on_result=completed)),

@@ -91,10 +91,12 @@ Invoke-Monkey365Evidence -Monkey365Output .\report.html -PowerShellAudits `
   -ExpectedTenantId '<tenant GUID>' -TestRun
 ```
 
-Before a PowerShell capture starts, the tool checks for its Exchange Online and
-Microsoft Graph modules. If any are missing, it lists them and asks whether to
-install the fixed modules from PSGallery for the current Windows user. Answer `Y`
-to install them or `N` to stop before evidence collection begins.
+Before a PowerShell capture starts, the tool checks for the Exchange Online module.
+If it is missing, it asks whether to install the fixed module from PSGallery for
+the current Windows user. Graph-only controls instead use their failed Monkey365
+export records by default, so they do not require Graph modules or a second sign-in.
+Use `--live-graph` to recheck them against the current tenant; that mode checks for
+the required Graph modules and offers the same `Y`/`N` installation prompt.
 PowerShell 7 is used when available; on Windows the collector falls back to the
 built-in `powershell.exe` when PowerShell 7 is not installed.
 Authentication may prompt for sign-in. `ExpectedTenantId` stops PowerShell
@@ -102,12 +104,12 @@ collection if the connected organization differs. `TestRun` labels the run as
 route testing, useful when testing checks from a report against another tenant;
 it does not select the browser tenant.
 
-Graph audits start the standard Microsoft Graph PowerShell sign-in when
-`-PowerShellAudits` is used. Microsoft may ask for sign-in or for administrator
-consent to the required read-only permissions. `ExpectedTenantId` is optional and
-stops collection if the selected tenant differs. `GraphClientId` remains available
-for organisations that require their own authorised application. The Python CLI
-equivalents are `--powershell`, `--graph-client-id`, `--expected-tenant-id`, and
+Graph audits start the standard Microsoft Graph PowerShell sign-in only with
+`--live-graph`. Microsoft may ask for sign-in or for administrator consent to the
+required read-only permissions. `ExpectedTenantId` is optional and stops collection
+if the selected tenant differs. `GraphClientId` remains available for organisations
+that require their own authorised application. The Python CLI equivalents are
+`--powershell`, `--live-graph`, `--graph-client-id`, `--expected-tenant-id`, and
 `--test-run`.
 
 PowerShell `.txt` files show the fixed command and its structured output under
