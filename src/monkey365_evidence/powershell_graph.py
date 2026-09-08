@@ -150,10 +150,13 @@ def run_audits(
     ]
     if client_id:
         lines.append("Connect-MgGraph -ClientId $ClientId -TenantId $ExpectedTenantId -Scopes 'https://graph.microsoft.com/.default' -ContextScope CurrentUser -NoWelcome")
-    elif expected_tenant_id:
-        lines.append("Connect-MgGraph -TenantId $ExpectedTenantId -Scopes $readScopes -ContextScope Process -NoWelcome")
     else:
-        lines.append("Connect-MgGraph -Scopes $readScopes -ContextScope Process -NoWelcome")
+        # Public Microsoft Azure PowerShell application, also Monkey365's default.
+        lines += [
+            "$auth = @{ClientId='1950a258-227b-4e31-a9cf-717495945fc2'; Scopes='https://graph.microsoft.com/.default'; ContextScope='Process'; NoWelcome=$true}",
+            "if ($ExpectedTenantId) { $auth.TenantId = $ExpectedTenantId }",
+            "Connect-MgGraph @auth",
+        ]
     lines += [_CONTEXT + tenant_check, "$records = @()"]
     for spec in selected:
         command = spec.command.replace("'", "''")
