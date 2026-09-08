@@ -243,6 +243,54 @@
       "enabled": true
     },
     {
+      "cis": "5.1.4.2",
+      "title": "Maximum number of devices per user",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "ready_selector": "input[aria-label='Maximum number of devices per user']",
+      "expected_checks": [
+        {
+          "selector": "input[aria-label='Maximum number of devices per user']",
+          "max_value": 10,
+          "highlight_selector": "div.fxc-weave-pccontrol:has-text('Maximum number of devices per user')"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.1.4.3",
+      "title": "Global administrator local administrator assignment during Entra join",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "ready_selector": "div.fxc-weave-pccontrol:has-text('Global administrator role is added as local administrator') li[role='radio']:has(input[value='false'])",
+      "expected_checks": [
+        {
+          "selector": "div.fxc-weave-pccontrol:has-text('Global administrator role is added as local administrator') li[role='radio']:has(input[value='false'])",
+          "checked": true,
+          "highlight_selector": "div.fxc-weave-pccontrol:has-text('Global administrator role is added as local administrator') [role='radiogroup']"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "5.1.4.5",
+      "title": "Microsoft Entra Local Administrator Password Solution",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
+      "ready_selector": "div.fxc-weave-pccontrol:has-text('Enable Microsoft Entra Local Administrator Password Solution') li[role='radio']:has(input[value='true'])",
+      "expected_checks": [
+        {
+          "selector": "div.fxc-weave-pccontrol:has-text('Enable Microsoft Entra Local Administrator Password Solution') li[role='radio']:has(input[value='true'])",
+          "checked": true,
+          "highlight_selector": "div.fxc-weave-pccontrol:has-text('Enable Microsoft Entra Local Administrator Password Solution') [role='radiogroup']"
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
       "cis": "5.1.4.6",
       "title": "BitLocker recovery restriction",
       "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DevicesMenuBlade/~/DeviceSettings/menuId/Overview",
