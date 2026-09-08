@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/silverhack/monkey365",
+  "tag": "v0.99",
+  "commit": "f357e67dd0ff817b7e7a21d5fa2faffe99bce5f5",
+  "ruleset": "rules/rulesets/cis_m365_7.0.0.json",
+  "benchmark_version": "7.0.0",
+  "generated_with": "monkey365-evidence import-ruleset",
+  "notes": [
+    "Both numeric rule IDs and eventCode aliases are included where unambiguous.",
+    "Ambiguous IDs are omitted; eventCode is preferred when present in the map.",
+    "One upstream Purview rule has invalid JSON prose; only its standalone identity fields were imported."
+  ]
+}
