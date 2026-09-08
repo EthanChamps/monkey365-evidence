@@ -81,12 +81,20 @@ def load_manifest(path: Path) -> tuple[set[str], dict[str, Control]]:
         if not isinstance(checks, list) or any(
             not isinstance(check, dict) or not isinstance(check.get("selector"), str)
             or not check["selector"] or not any(
-                key in check for key in ("checked", "value", "min_value", "max_value", "not_value")
+                key in check for key in (
+                    "checked", "value", "allowed_values", "min_value", "max_value",
+                    "not_value", "text", "not_text",
+                )
             ) or ("checked" in check and type(check["checked"]) is not bool)
             or any(key in check and not isinstance(check[key], (int, float))
                    for key in ("min_value", "max_value"))
             or any(key in check and not isinstance(check[key], str)
-                   for key in ("value", "not_value"))
+                   for key in ("value", "not_value", "text", "not_text"))
+            or ("allowed_values" in check and (
+                not isinstance(check["allowed_values"], list)
+                or not check["allowed_values"]
+                or any(not isinstance(value, str) for value in check["allowed_values"])
+            ))
             for check in checks
         ):
             raise ValueError(

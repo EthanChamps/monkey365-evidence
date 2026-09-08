@@ -2,15 +2,19 @@ from monkey365_evidence.collector import setting_matches
 
 
 class Setting:
-    def __init__(self, *, value="", checked=False):
+    def __init__(self, *, value="", checked=False, text=""):
         self.value = value
         self.checked = checked
+        self.text = text
 
     def input_value(self):
         return self.value
 
     def is_checked(self):
         return self.checked
+
+    def inner_text(self):
+        return self.text
 
 
 def test_numeric_setting_limits():
@@ -26,3 +30,10 @@ def test_exact_and_checked_settings():
     assert setting_matches(Setting(value="180"), {"not_value": "0"})
     assert setting_matches(Setting(checked=True), {"checked": True})
     assert not setting_matches(Setting(checked=False), {"checked": True})
+
+
+def test_allowed_values_and_status_text():
+    assert setting_matches(Setting(value="Selected"), {"allowed_values": ["Selected", "None"]})
+    assert not setting_matches(Setting(value="All"), {"allowed_values": ["Selected", "None"]})
+    assert setting_matches(Setting(text="Email OTP   No"), {"text": "No"})
+    assert not setting_matches(Setting(text="Email OTP   Yes"), {"not_text": "Yes"})

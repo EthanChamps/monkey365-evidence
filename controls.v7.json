@@ -392,6 +392,63 @@
       "enabled": true
     },
     {
+      "cis": "5.1.3.2",
+      "title": "Restrict access to My Groups features",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "ready_selector": "role=radiogroup[name=/^Restrict user ability to access groups features in My Groups/] >> role=radio[name='Yes']",
+      "highlight_selectors": [
+        "role=radiogroup[name=/^Restrict user ability to access groups features in My Groups/]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=/^Restrict user ability to access groups features in My Groups/] >> role=radio[name='Yes']",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.3.3",
+      "title": "Group owner membership request management",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "ready_selector": "role=radiogroup[name='Owners can manage group membership requests in My Groups'] >> role=radio[name='No']",
+      "highlight_selectors": [
+        "role=radiogroup[name='Owners can manage group membership requests in My Groups']"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name='Owners can manage group membership requests in My Groups'] >> role=radio[name='No']",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "5.1.3.4",
+      "title": "Microsoft 365 group creation",
+      "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "expected_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/General/menuId/General",
+      "ready_selector": "role=radiogroup[name=/^Users can create Microsoft 365 groups in Azure portals/] >> role=radio[name='No']",
+      "highlight_selectors": [
+        "role=radiogroup[name=/^Users can create Microsoft 365 groups in Azure portals/]"
+      ],
+      "expected_checks": [
+        {
+          "selector": "role=radiogroup[name=/^Users can create Microsoft 365 groups in Azure portals/] >> role=radio[name='No']",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
       "cis": "5.2.3.3",
       "title": "Password protection for on-premises Active Directory",
       "start_url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/AuthenticationMethodsMenuBlade/~/PasswordProtection/fromNav/",
@@ -538,6 +595,44 @@
       "expected_checks": [
         {
           "selector": "role=radiogroup[name=\"Notify all admins when other admins reset their password?\"] >> role=radio[name=\"Yes\"]",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "6.5.1",
+      "title": "Modern authentication for Exchange Online",
+      "start_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/ModernAuthentication",
+      "expected_url": "https://admin.cloud.microsoft/#/Settings/Services/:/Settings/L1/ModernAuthentication",
+      "ready_selector": "input[aria-label^='Turn on modern authentication for Outlook 2013']",
+      "screenshot_selector": "[role=dialog] .ms-Panel-main",
+      "highlight_selectors": [
+        ".ms-Checkbox:has(input[aria-label^='Turn on modern authentication for Outlook 2013'])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "input[aria-label^='Turn on modern authentication for Outlook 2013']",
+          "checked": true
+        }
+      ],
+      "steps": [],
+      "enabled": true
+    },
+    {
+      "cis": "6.5.4",
+      "title": "SMTP AUTH",
+      "start_url": "https://admin.exchange.microsoft.com/#/settings",
+      "expected_url": "https://admin.exchange.microsoft.com/#/settings",
+      "ready_selector": "input[aria-label*='Turn off SMTP AUTH protocol for your organization']",
+      "highlight_selectors": [
+        "label:has(input[aria-label*='Turn off SMTP AUTH protocol for your organization'])"
+      ],
+      "expected_checks": [
+        {
+          "selector": "input[aria-label*='Turn off SMTP AUTH protocol for your organization']",
           "checked": true
         }
       ],

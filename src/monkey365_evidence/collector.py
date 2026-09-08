@@ -108,9 +108,13 @@ def setting_matches(locator: Locator, check: dict) -> bool:
     """Compare a visible form setting without changing it."""
     if "checked" in check and locator.is_checked() != check["checked"]:
         return False
-    if any(key in check for key in ("value", "not_value", "min_value", "max_value")):
+    if any(key in check for key in (
+        "value", "allowed_values", "not_value", "min_value", "max_value"
+    )):
         actual = locator.input_value().strip()
         if "value" in check and actual != check["value"]:
+            return False
+        if "allowed_values" in check and actual not in check["allowed_values"]:
             return False
         if "not_value" in check and actual == check["not_value"]:
             return False
@@ -123,6 +127,12 @@ def setting_matches(locator: Locator, check: dict) -> bool:
                 return False
             if "max_value" in check and number > check["max_value"]:
                 return False
+    if "text" in check or "not_text" in check:
+        actual_text = " ".join(locator.inner_text().split())
+        if "text" in check and check["text"] not in actual_text:
+            return False
+        if "not_text" in check and check["not_text"] in actual_text:
+            return False
     return True
 
 
