@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "monkey365-evidence"
+version = "0.1.0"
+description = "Capture read-only Microsoft 365 portal evidence for failed Monkey365 CIS findings."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["playwright>=1.50,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9", "ruff>=0.9,<1"]
+
+[project.scripts]
+monkey365-evidence = "monkey365_evidence.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/monkey365_evidence"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+

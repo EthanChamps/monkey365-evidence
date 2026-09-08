@@ -1,0 +1,21 @@
+{
+  "allowed_hosts": [
+    "admin.microsoft.com",
+    "entra.microsoft.com",
+    "security.microsoft.com",
+    "purview.microsoft.com"
+  ],
+  "controls": [
+    {
+      "cis": "0.0.0",
+      "title": "Example read-only configuration control",
+      "start_url": "https://admin.microsoft.com/",
+      "steps": [
+        {"action": "click", "selector": "text=Example navigation item"},
+        {"action": "wait_for", "selector": "role=heading[name='Example settings page']"}
+      ],
+      "full_page": true,
+      "enabled": false
+    }
+  ]
+}
