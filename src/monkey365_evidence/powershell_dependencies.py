@@ -17,10 +17,12 @@ GRAPH_MODULES = (
     "Microsoft.Graph.Users",
     "Microsoft.Graph.Identity.DirectoryManagement",
 )
+TEAMS_MODULES = ("MicrosoftTeams",)
 
 
-def required_modules(*, exchange: bool, graph: bool) -> tuple[str, ...]:
-    return (EXCHANGE_MODULES if exchange else ()) + (GRAPH_MODULES if graph else ())
+def required_modules(*, exchange: bool, graph: bool, teams: bool = False) -> tuple[str, ...]:
+    return ((EXCHANGE_MODULES if exchange else ()) + (GRAPH_MODULES if graph else ())
+            + (TEAMS_MODULES if teams else ()))
 
 
 def missing_modules(
@@ -71,12 +73,12 @@ def install_modules(
 
 
 def ensure_modules(
-    *, exchange: bool, graph: bool, interactive: bool,
+    *, exchange: bool, graph: bool, teams: bool = False, interactive: bool,
     input_fn: Callable[[str], str] = input,
     output_fn: Callable[[str], None] = print,
 ) -> None:
     """Prompt before installing missing dependencies, then verify the installation."""
-    required = required_modules(exchange=exchange, graph=graph)
+    required = required_modules(exchange=exchange, graph=graph, teams=teams)
     missing = missing_modules(required)
     if not missing:
         return

@@ -17,6 +17,9 @@ from .models import CaptureResult, evidence_filename
 from .powershell_audit import AuditResult, run_audits
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 from .powershell_graph import run_audits as run_graph_audits
+from .powershell_teams import REGISTRY as TEAMS_AUDITS
+from .powershell_teams import run_audits as run_teams_audits
+from .teams_evaluation import evaluate_teams
 
 
 def render_audit_results(
@@ -37,6 +40,8 @@ def render_audit_results(
         try:
             if audit.cis in GRAPH_AUDITS:
                 evaluation = evaluate_graph(audit.cis, audit.data)
+            elif audit.cis in TEAMS_AUDITS:
+                evaluation = evaluate_teams(audit.cis, audit.data)
             elif audit.cis == "2.1.15":
                 evaluation = evaluate_limits(audit.data)
             elif audit.cis in {"2.1.1", "2.1.7"}:
@@ -86,5 +91,15 @@ def capture_graph_audits(
     audits = run_graph_audits(control_ids, output_dir,
                              expected_tenant_id=expected_tenant_id, client_id=client_id)
     with (output_dir / "graph-results.local.json").open("x", encoding="utf-8") as stream:
+        json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
+    render_audit_results(audits, output_dir, on_result=on_result, titles=titles)
+
+
+def capture_teams_audits(
+    control_ids: list[str], output_dir: Path, *, expected_tenant_id: str | None,
+    on_result: Callable[[CaptureResult], None], titles: dict[str, str] | None = None,
+) -> None:
+    audits = run_teams_audits(control_ids, output_dir, expected_tenant_id=expected_tenant_id)
+    with (output_dir / "teams-results.local.json").open("x", encoding="utf-8") as stream:
         json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
     render_audit_results(audits, output_dir, on_result=on_result, titles=titles)

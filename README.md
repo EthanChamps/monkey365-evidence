@@ -94,8 +94,8 @@ Invoke-Monkey365Evidence -Monkey365Output .\report.html -PowerShellAudits `
   -ExpectedTenantId '<tenant GUID>' -TestRun
 ```
 
-Before a PowerShell capture starts, the tool checks for the required Exchange Online
-and Graph modules and offers a `Y`/`N` prompt to install missing modules for the
+Before a PowerShell capture starts, the tool checks for the required Exchange Online,
+Graph, and Microsoft Teams modules and offers a `Y`/`N` prompt to install missing modules for the
 current user. All PowerShell evidence is collected live. Export finding summaries
 are not substituted for audit output.
 PowerShell 7 is used when available; on Windows the collector falls back to the
@@ -115,6 +115,10 @@ if the selected tenant differs. `GraphClientId` remains available for organisati
 that require their own authorised application. The Python CLI equivalents are
 `--powershell`, `--live-graph`, `--graph-client-id`, `--expected-tenant-id`, and
 `--test-run`.
+
+Teams audits use the Microsoft Teams PowerShell module and its interactive sign-in.
+The collector reads the Global client, external-access, federation, and meeting policies;
+it does not change or save a Teams policy.
 
 PowerShell `.txt` files show the fixed command and its structured output under
 Command and Output headings. The extension also saves the original command results.
