@@ -179,8 +179,10 @@ def _script(selected: list[AuditSpec], result_path: str, tenantorganization: str
         # Registry scripts are constants defined in this module, never user input.
         lines.extend([
             "try {",
-            f"  $value = {spec.script} | ConvertTo-Json -Compress -Depth 8",
-            f"  $records.Add([pscustomobject]@{{cis='{spec.cis}'; command='{spec.command.replace(chr(39), chr(39)+chr(39))}'; output=$value; data=($value | ConvertFrom-Json); status=if ([string]::IsNullOrWhiteSpace($value)) {{ 'failed' }} else {{ 'collected' }}; error=$null}})",
+            f"  $items = @({spec.script})",
+            "  $value = if ($items.Count -eq 0) { '[]' } else { $items | ConvertTo-Json -Compress -Depth 8 }",
+            "  $data = (ConvertFrom-Json -InputObject ('{\"value\":' + $value + '}')).value",
+            f"  $records.Add([pscustomobject]@{{cis='{spec.cis}'; command='{spec.command.replace(chr(39), chr(39)+chr(39))}'; output=$value; data=$data; status=if ([string]::IsNullOrWhiteSpace($value)) {{ 'failed' }} else {{ 'collected' }}; error=$null}})",
             "} catch {",
             f"  $records.Add([pscustomobject]@{{cis='{spec.cis}'; command='{spec.command.replace(chr(39), chr(39)+chr(39))}'; output=''; data=$null; status='failed'; error=$_.Exception.Message}})",
             "}",

@@ -114,6 +114,7 @@ def _script(selected: list[AuditSpec], result_path: str) -> str:
     lines = [
         "param([string]$SharePointAdminUrl,[string]$TenantOrganization,[string]$ExpectedTenantId)",
         "$ErrorActionPreference = 'Stop'",
+        "if ($PSVersionTable.PSEdition -eq 'Core') { Import-Module Microsoft.Online.SharePoint.PowerShell -UseWindowsPowerShell -ErrorAction Stop } else { Import-Module Microsoft.Online.SharePoint.PowerShell -ErrorAction Stop }",
         "if (-not $SharePointAdminUrl -or $ExpectedTenantId) {",
         "  if ($TenantOrganization) { Connect-ExchangeOnline -Organization $TenantOrganization -ShowBanner:$false } else { Connect-ExchangeOnline -ShowBanner:$false }",
         "  $connection = Get-ConnectionInformation | Select-Object -First 1",

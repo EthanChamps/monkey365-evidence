@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 browser-profile/
+browser-profile*/
 evidence/
 run-manifest.json
 *.local.json

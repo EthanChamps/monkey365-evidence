@@ -66,8 +66,13 @@ def install_modules(
     quoted = ", ".join(f"'{module}'" for module in modules)
     command = (
         "$ErrorActionPreference='Stop'; "
-        "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force | Out-Null; "
-        f"Install-Module -Name @({quoted}) -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
+        f"$modules=@({quoted}); "
+        "if (Get-Command Install-PSResource -ErrorAction SilentlyContinue) { "
+        "$modules | ForEach-Object { Install-PSResource -Name $_ -Scope CurrentUser -Repository PSGallery -TrustRepository -ErrorAction Stop } "
+        "} else { "
+        "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force -ErrorAction Stop | Out-Null; "
+        "$modules | ForEach-Object { Install-Module -Name $_ -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -ErrorAction Stop } "
+        "}"
     )
     completed = runner(
         [powershell_executable(pwsh), "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],

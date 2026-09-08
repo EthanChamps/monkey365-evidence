@@ -59,6 +59,7 @@ def test_runner_uses_safe_argv_and_preserves_single_record(tmp_path: Path):
     def fake_runner(argv, **kwargs):
         seen["argv"] = argv
         script = Path(argv[argv.index("-File") + 1]).read_text(encoding="utf-8")
+        seen["script"] = script
         result_path = next(
             line.split("-LiteralPath '", 1)[1].split("'", 1)[0]
             for line in script.splitlines() if "Set-Content -LiteralPath" in line
@@ -77,3 +78,4 @@ def test_runner_uses_safe_argv_and_preserves_single_record(tmp_path: Path):
     )
     assert result[0].status == "collected"
     assert seen["argv"][-2:] == ["-SharePointAdminUrl", "https://example-admin.sharepoint.com"]
+    assert "Import-Module Microsoft.Online.SharePoint.PowerShell -UseWindowsPowerShell" in seen["script"]

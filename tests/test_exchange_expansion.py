@@ -1,11 +1,17 @@
 from monkey365_evidence.audit_evaluation import evaluate_audit
-from monkey365_evidence.powershell_audit import REGISTRY
+from monkey365_evidence.powershell_audit import REGISTRY, _script
 
 
 def test_exchange_expansion_is_registered():
     assert {"6.1.1", "6.1.2", "6.1.3", "6.2.1", "6.2.2", "6.2.3", "6.5.5"} <= (
         REGISTRY.keys()
     )
+
+
+def test_empty_command_results_are_transported_as_an_empty_array():
+    script = _script([REGISTRY["3.2.1"]], "result.json", None)
+    assert "$items.Count -eq 0" in script
+    assert "'{\"value\":' + $value + '}'" in script
 
 
 def test_boolean_exchange_controls_fail_closed():
