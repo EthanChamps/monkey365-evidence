@@ -11,6 +11,7 @@ from .audit_capture import (
     capture_audits,
     capture_fabric_audits,
     capture_graph_audits,
+    capture_sharepoint_audits,
     capture_teams_audits,
 )
 from .collector import capture_controls
@@ -22,6 +23,7 @@ from .powershell_audit import REGISTRY as AUDITS
 from .powershell_dependencies import ensure_modules
 from .powershell_fabric import REGISTRY as FABRIC_AUDITS
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
+from .powershell_sharepoint import REGISTRY as SHAREPOINT_AUDITS
 from .powershell_teams import REGISTRY as TEAMS_AUDITS
 
 
@@ -81,6 +83,8 @@ def _main() -> int:
                          help="Abort PowerShell audits if the connected tenant differs")
     capture.add_argument("--graph-client-id",
                          help="Use an existing authorised Graph application with its default scopes")
+    capture.add_argument("--sharepoint-admin-url",
+                         help="SharePoint admin URL; normally discovered from Exchange Online")
     capture.add_argument("--live-graph", action="store_true",
                          help="Compatibility option: Graph controls are always collected live")
     capture.add_argument("--test-run", action="store_true",
@@ -113,7 +117,9 @@ def _main() -> int:
     graph_ids = graph_controls
     teams_ids = sorted(mapped & TEAMS_AUDITS.keys()) if args.powershell else []
     fabric_ids = sorted(mapped & FABRIC_AUDITS.keys()) if args.powershell else []
-    powershell_ids = set(audit_ids) | set(graph_controls) | set(teams_ids) | set(fabric_ids)
+    sharepoint_ids = sorted(mapped & SHAREPOINT_AUDITS.keys()) if args.powershell else []
+    powershell_ids = (set(audit_ids) | set(graph_controls) | set(teams_ids) |
+                      set(fabric_ids) | set(sharepoint_ids))
     chosen = [control for control in chosen if control.cis not in powershell_ids]
     unmapped_rules = sorted(rules - mapping.keys())
     missing_routes = sorted(mapped - controls.keys() - powershell_ids)
@@ -134,8 +140,9 @@ def _main() -> int:
     if args.command == "plan":
         return 2 if unmapped_rules or missing_routes or disabled else 0
     if powershell_ids:
-        ensure_modules(exchange=bool(audit_ids), graph=bool(graph_ids), teams=bool(teams_ids),
-                       fabric=bool(fabric_ids),
+        ensure_modules(exchange=bool(audit_ids or sharepoint_ids), graph=bool(graph_ids),
+                       teams=bool(teams_ids), fabric=bool(fabric_ids),
+                       sharepoint=bool(sharepoint_ids),
                        interactive=not args.non_interactive)
     run_dir = args.output / datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -166,6 +173,7 @@ def _main() -> int:
         "graph_controls": graph_controls,
         "teams_controls": teams_ids,
         "fabric_controls": fabric_ids,
+        "sharepoint_controls": sharepoint_ids,
         "graph_evidence_source": "live_graph",
     }
     destination = run_dir / "run-manifest.json"
@@ -203,6 +211,10 @@ def _main() -> int:
         (fabric_ids, lambda: capture_fabric_audits(
             fabric_ids, run_dir, expected_tenant_id=args.expected_tenant_id,
             on_result=completed, titles=titles)),
+        (sharepoint_ids, lambda: capture_sharepoint_audits(
+            sharepoint_ids, run_dir, sharepoint_admin_url=args.sharepoint_admin_url,
+            tenantorganization=args.tenant_organization,
+            expected_tenant_id=args.expected_tenant_id, on_result=completed, titles=titles)),
     ]
     try:
         for phase_ids, run_phase in phases:

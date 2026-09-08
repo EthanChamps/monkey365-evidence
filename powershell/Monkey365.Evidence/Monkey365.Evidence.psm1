@@ -25,6 +25,7 @@ function Invoke-Monkey365Evidence {
         [string] $TenantOrganization,
         [guid] $ExpectedTenantId,
         [guid] $GraphClientId,
+        [string] $SharePointAdminUrl,
         [switch] $TestRun,
         [switch] $Plan,
         [switch] $NonInteractive
@@ -53,6 +54,7 @@ function Invoke-Monkey365Evidence {
         if ($GraphClientId -ne [guid]::Empty) {
             $arguments += @('--graph-client-id', $GraphClientId.ToString())
         }
+        if ($SharePointAdminUrl) { $arguments += @('--sharepoint-admin-url', $SharePointAdminUrl) }
         if ($TestRun) { $arguments += '--test-run' }
     }
     & $Python @arguments

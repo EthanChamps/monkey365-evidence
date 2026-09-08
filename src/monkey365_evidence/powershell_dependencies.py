@@ -19,12 +19,14 @@ GRAPH_MODULES = (
 )
 TEAMS_MODULES = ("MicrosoftTeams",)
 FABRIC_MODULES = ("Az.Accounts",)
+SHAREPOINT_MODULES = ("Microsoft.Online.SharePoint.PowerShell",)
 
 
 def required_modules(*, exchange: bool, graph: bool, teams: bool = False,
-                     fabric: bool = False) -> tuple[str, ...]:
+                     fabric: bool = False, sharepoint: bool = False) -> tuple[str, ...]:
     return ((EXCHANGE_MODULES if exchange else ()) + (GRAPH_MODULES if graph else ())
-            + (TEAMS_MODULES if teams else ()) + (FABRIC_MODULES if fabric else ()))
+            + (TEAMS_MODULES if teams else ()) + (FABRIC_MODULES if fabric else ())
+            + (SHAREPOINT_MODULES if sharepoint else ()))
 
 
 def missing_modules(
@@ -76,12 +78,14 @@ def install_modules(
 
 def ensure_modules(
     *, exchange: bool, graph: bool, teams: bool = False, fabric: bool = False,
+    sharepoint: bool = False,
     interactive: bool,
     input_fn: Callable[[str], str] = input,
     output_fn: Callable[[str], None] = print,
 ) -> None:
     """Prompt before installing missing dependencies, then verify the installation."""
-    required = required_modules(exchange=exchange, graph=graph, teams=teams, fabric=fabric)
+    required = required_modules(exchange=exchange, graph=graph, teams=teams, fabric=fabric,
+                                sharepoint=sharepoint)
     missing = missing_modules(required)
     if not missing:
         return

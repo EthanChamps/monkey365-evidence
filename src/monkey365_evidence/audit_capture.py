@@ -20,8 +20,11 @@ from .powershell_fabric import REGISTRY as FABRIC_AUDITS
 from .powershell_fabric import run_audits as run_fabric_audits
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 from .powershell_graph import run_audits as run_graph_audits
+from .powershell_sharepoint import REGISTRY as SHAREPOINT_AUDITS
+from .powershell_sharepoint import run_audits as run_sharepoint_audits
 from .powershell_teams import REGISTRY as TEAMS_AUDITS
 from .powershell_teams import run_audits as run_teams_audits
+from .sharepoint_evaluation import evaluate_sharepoint
 from .teams_evaluation import evaluate_teams
 
 
@@ -45,6 +48,8 @@ def render_audit_results(
                 evaluation = evaluate_graph(audit.cis, audit.data)
             elif audit.cis in FABRIC_AUDITS:
                 evaluation = evaluate_fabric(audit.cis, audit.data)
+            elif audit.cis in SHAREPOINT_AUDITS:
+                evaluation = evaluate_sharepoint(audit.cis, audit.data)
             elif audit.cis in TEAMS_AUDITS:
                 evaluation = evaluate_teams(audit.cis, audit.data)
             elif audit.cis == "2.1.15":
@@ -116,5 +121,18 @@ def capture_fabric_audits(
 ) -> None:
     audits = run_fabric_audits(control_ids, output_dir, expected_tenant_id=expected_tenant_id)
     with (output_dir / "fabric-results.local.json").open("x", encoding="utf-8") as stream:
+        json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
+    render_audit_results(audits, output_dir, on_result=on_result, titles=titles)
+
+
+def capture_sharepoint_audits(
+    control_ids: list[str], output_dir: Path, *, sharepoint_admin_url: str | None,
+    tenantorganization: str | None, expected_tenant_id: str | None,
+    on_result: Callable[[CaptureResult], None], titles: dict[str, str] | None = None,
+) -> None:
+    audits = run_sharepoint_audits(
+        control_ids, output_dir, sharepoint_admin_url=sharepoint_admin_url,
+        tenantorganization=tenantorganization, expected_tenant_id=expected_tenant_id)
+    with (output_dir / "sharepoint-results.local.json").open("x", encoding="utf-8") as stream:
         json.dump([asdict(audit) for audit in audits], stream, indent=2, ensure_ascii=False)
     render_audit_results(audits, output_dir, on_result=on_result, titles=titles)

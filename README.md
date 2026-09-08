@@ -95,7 +95,7 @@ Invoke-Monkey365Evidence -Monkey365Output .\report.html -PowerShellAudits `
 ```
 
 Before a PowerShell capture starts, the tool checks for the required Exchange Online,
-Graph, Microsoft Teams, and Azure modules and offers a `Y`/`N` prompt to install missing modules for the
+Graph, Microsoft Teams, Azure, and SharePoint Online modules and offers a `Y`/`N` prompt to install missing modules for the
 current user. All PowerShell evidence is collected live. Export finding summaries
 are not substituted for audit output.
 PowerShell 7 is used when available; on Windows the collector falls back to the
@@ -123,6 +123,10 @@ it does not change or save a Teams policy.
 Fabric audits use Azure PowerShell authentication to make one read-only request to the
 Fabric tenant-settings API. The response is filtered into separate evidence files for
 each selected CIS finding. The signed-in account must be allowed to read Fabric tenant settings.
+
+SharePoint audits read tenant-wide sharing, guest-expiry, legacy authentication, and
+malware-download settings. The admin URL is normally discovered through Exchange Online;
+use `--sharepoint-admin-url https://<tenant>-admin.sharepoint.com` if discovery is unavailable.
 
 PowerShell `.txt` files show the fixed command and its structured output under
 Command and Output headings. The extension also saves the original command results.
