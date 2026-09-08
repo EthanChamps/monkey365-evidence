@@ -11,7 +11,15 @@ from pathlib import Path
 
 from .powershell_audit import AuditResult, AuditSpec
 
-_CONTEXT = "$ctx=Get-MgContext; if (-not $ctx) { throw 'No existing Microsoft Graph context' }"
+_CONTEXT = "$ctx=Get-MgContext; if (-not $ctx) { throw 'Microsoft Graph sign-in did not create a context' }"
+_READ_SCOPES = (
+    "Policy.Read.All",
+    "Reports.Read.All",
+    "Group.Read.All",
+    "RoleManagement.Read.Directory",
+    "User.Read.All",
+    "Directory.Read.All",
+)
 _REGISTRY = (
     AuditSpec(
         "5.2.2.1",
@@ -138,9 +146,14 @@ def run_audits(
         "param([string]$ExpectedTenantId, [string]$ClientId)",
         "$ErrorActionPreference = 'Stop'",
         "Import-Module Microsoft.Graph.Authentication -ErrorAction Stop",
+        "$readScopes = @(" + ", ".join(f"'{scope}'" for scope in _READ_SCOPES) + ")",
     ]
     if client_id:
         lines.append("Connect-MgGraph -ClientId $ClientId -TenantId $ExpectedTenantId -Scopes 'https://graph.microsoft.com/.default' -ContextScope CurrentUser -NoWelcome")
+    elif expected_tenant_id:
+        lines.append("Connect-MgGraph -TenantId $ExpectedTenantId -Scopes $readScopes -ContextScope Process -NoWelcome")
+    else:
+        lines.append("Connect-MgGraph -Scopes $readScopes -ContextScope Process -NoWelcome")
     lines += [_CONTEXT + tenant_check, "$records = @()"]
     for spec in selected:
         command = spec.command.replace("'", "''")
@@ -162,7 +175,6 @@ def run_audits(
             [
                 pwsh,
                 "-NoProfile",
-                "-NonInteractive",
                 "-ExecutionPolicy",
                 "Bypass",
                 "-File",

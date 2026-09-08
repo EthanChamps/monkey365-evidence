@@ -100,12 +100,13 @@ collection if the connected organization differs. `TestRun` labels the run as
 route testing, useful when testing checks from a report against another tenant;
 it does not select the browser tenant.
 
-For Graph audits, supply `-GraphClientId '<existing authorised application GUID>'`
-and `-ExpectedTenantId`. The extension reconnects using that application's existing
-default permissions. Complete sign-in beforehand if needed. It does not accept a
-consent prompt or grant permissions. If permissions are unavailable, collection
-reports the error. The Python CLI equivalents are `--powershell`, `--graph-client-id`,
-`--expected-tenant-id`, and `--test-run`.
+Graph audits start the standard Microsoft Graph PowerShell sign-in when
+`-PowerShellAudits` is used. Microsoft may ask for sign-in or for administrator
+consent to the required read-only permissions. `ExpectedTenantId` is optional and
+stops collection if the selected tenant differs. `GraphClientId` remains available
+for organisations that require their own authorised application. The Python CLI
+equivalents are `--powershell`, `--graph-client-id`, `--expected-tenant-id`, and
+`--test-run`.
 
 PowerShell `.txt` files show the fixed command and its structured output under
 Command and Output headings. The extension also saves the original command results.
