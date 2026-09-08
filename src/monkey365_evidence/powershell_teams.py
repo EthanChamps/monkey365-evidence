@@ -108,6 +108,18 @@ _REGISTRY = (
         "Get-CsTeamsMeetingPolicy -Identity Global | Select-Object AllowCloudRecording",
         {"AllowCloudRecording": False},
     ),
+    AuditSpec(
+        "8.4.1",
+        "Get-CsTeamsAppPermissionPolicy | Select-Object Identity,DefaultCatalogAppsType,GlobalCatalogAppsType,PrivateCatalogAppsType",
+        "Get-CsTeamsAppPermissionPolicy | Select-Object Identity,DefaultCatalogAppsType,GlobalCatalogAppsType,PrivateCatalogAppsType",
+        {"predicate": "app permission defaults restrict third-party and custom apps"},
+    ),
+    AuditSpec(
+        "8.6.1",
+        "Get-CsTeamsMessagingPolicy -Identity Global | Select-Object Identity,AllowSecurityEndUserReporting",
+        "Get-CsTeamsMessagingPolicy -Identity Global | Select-Object Identity,AllowSecurityEndUserReporting",
+        {"AllowSecurityEndUserReporting": True, "defender_report_destination": "separate review"},
+    ),
 )
 
 REGISTRY = {spec.cis: spec for spec in _REGISTRY}

@@ -312,7 +312,7 @@ def evaluate_audit(cis: str, data: Any) -> Evaluation:
                 else Evaluation("no_failure", detail="All returned custom domains have valid, enabled DKIM"))
 
     if cis in {"2.1.2", "2.1.4", "2.1.8", "2.1.10", "2.4.2", "2.4.4",
-               "3.2.1", "3.2.2", "3.2.3", "3.3.1"}:
+               "2.2.1", "2.4.1", "3.2.1", "3.2.2", "3.2.3", "3.3.1"}:
         if data is None or data == []:
             return Evaluation("failure", ("[]",), "The required policy or domain evidence was not returned")
         return Evaluation("unknown", detail="Evidence was collected; policy scope, priority, domains, or exceptions require review")

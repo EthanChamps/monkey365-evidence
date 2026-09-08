@@ -8,7 +8,8 @@
     "admin.teams.microsoft.com",
     "entra.microsoft.com",
     "purview.microsoft.com",
-    "security.microsoft.com"
+    "security.microsoft.com",
+    "intune.microsoft.com"
   ],
   "controls": [
     {
@@ -701,6 +702,75 @@
       ],
       "steps": [],
       "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "4.1",
+      "title": "Ensure devices without a compliance policy are marked Not compliant",
+      "start_url": "https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesComplianceMenu/~/policySettings",
+      "expected_url": "https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesComplianceMenu/~/policySettings",
+      "ready_selector": "text=Mark devices with no compliance policy assigned as",
+      "screenshot_selector": "main",
+      "expected_checks": [
+        {
+          "selector": "text=Mark devices with no compliance policy assigned as >> xpath=..",
+          "text": "Not compliant",
+          "highlight_selector": "text=Mark devices with no compliance policy assigned as >> xpath=.."
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "2.4.5",
+      "title": "Ensure AIR remediation is enabled",
+      "start_url": "https://security.microsoft.com/securitysettings/mdoAutomationSettings",
+      "expected_url": "https://security.microsoft.com/securitysettings/mdoAutomationSettings",
+      "ready_selector": "text=Message clusters",
+      "screenshot_selector": "main",
+      "expected_checks": [
+        {
+          "selector": "label:has-text('Similar files') input[type=checkbox]",
+          "checked": true,
+          "highlight_selector": "label:has-text('Similar files')"
+        },
+        {
+          "selector": "label:has-text('Similar URLs') input[type=checkbox]",
+          "checked": true,
+          "highlight_selector": "label:has-text('Similar URLs')"
+        },
+        {
+          "selector": "label:has-text('Multiple similar attributes') input[type=checkbox]",
+          "checked": true,
+          "highlight_selector": "label:has-text('Multiple similar attributes')"
+        }
+      ],
+      "steps": [],
+      "full_page": false,
+      "enabled": true
+    },
+    {
+      "cis": "2.4.3",
+      "title": "Ensure Microsoft Defender for Cloud Apps is enabled and configured",
+      "start_url": "https://security.microsoft.com/cloudapps/settings",
+      "expected_url": "https://security.microsoft.com/cloudapps/settings",
+      "ready_selector": "text=Connected apps",
+      "screenshot_selector": "main",
+      "expected_checks": [
+        {
+          "selector": "main",
+          "text": "Microsoft 365",
+          "highlight_selector": "main"
+        },
+        {
+          "selector": "main",
+          "text": "Microsoft Azure",
+          "highlight_selector": "main"
+        }
+      ],
+      "steps": [],
+      "full_page": true,
       "enabled": true
     }
   ]

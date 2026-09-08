@@ -8,6 +8,24 @@ def test_expanded_graph_registry_is_read_only():
     assert all("Set-Mg" not in REGISTRY[cis].script for cis in expected)
 
 
+def test_remaining_entra_controls_have_collectors():
+    expected = {
+        "5.1.2.1", "5.1.4.1", "5.1.4.4", "5.1.5.3", "5.1.5.5", "5.1.6.1",
+        "5.1.8.1", "5.2.2.2", "5.2.2.3", "5.2.2.8", "5.2.2.9",
+        "5.2.2.12", "5.2.2.14", "5.2.2.15", "5.2.2.16", "5.2.2.17",
+        "5.2.3.1", "5.2.3.10", "5.3.1", "5.3.2", "5.3.3", "5.3.4", "5.3.5", "4.2",
+    }
+    assert expected <= REGISTRY.keys()
+    assert all("Set-Mg" not in REGISTRY[cis].script for cis in expected)
+
+
+def test_per_user_mfa_and_named_locations_are_evaluated():
+    assert evaluate_graph("5.1.2.1", [{
+        "UserPrincipalName": "user@example.test", "PerUserMfaState": "enabled",
+    }]).status == "failure"
+    assert evaluate_graph("5.2.2.14", []).status == "failure"
+
+
 def test_synced_privileged_user_is_a_failure():
     result = evaluate_graph("1.1.1", [{
         "Id": "1", "UserPrincipalName": "admin@example.test",

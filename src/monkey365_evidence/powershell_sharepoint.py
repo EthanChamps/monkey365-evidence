@@ -91,6 +91,12 @@ _REGISTRY = (
         "Get-SPOTenant | Select-Object DisallowInfectedFileDownload",
         {"DisallowInfectedFileDownload": True},
     ),
+    AuditSpec(
+        "7.3.2",
+        "Get-SPOTenant | Select-Object ConditionalAccessPolicy,AllowDownloadingNonWebViewableFiles",
+        "Get-SPOTenant | Select-Object ConditionalAccessPolicy,AllowDownloadingNonWebViewableFiles",
+        {"note": "removed from CIS v7; retained for older Monkey365 finding compatibility"},
+    ),
 )
 
 REGISTRY = {spec.cis: spec for spec in _REGISTRY}

@@ -124,3 +124,8 @@ def evaluate_sharepoint(cis: str, data: Any) -> Evaluation:
         return Evaluation("no_failure", detail="Guest expiration setting matches CIS")
 
     return Evaluation("unknown", detail=f"No SharePoint evaluator exists for CIS {cis}")
+    if cis == "7.3.2":
+        return Evaluation(
+            "unknown",
+            detail="This recommendation was removed from CIS v7; current SharePoint unmanaged-device settings were collected for compatibility",
+        )

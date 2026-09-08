@@ -137,6 +137,12 @@ _REGISTRY: tuple[AuditSpec, ...] = (
     AuditSpec("2.4.4", "[pscustomobject]@{Policies=@(Get-TeamsProtectionPolicy | Select-Object Identity,ZapEnabled);Rules=@(Get-TeamsProtectionPolicyRule | Select-Object Identity,ExceptIf*)}",
               "[pscustomobject]@{Policies=@(Get-TeamsProtectionPolicy | Select-Object Identity,ZapEnabled);Rules=@(Get-TeamsProtectionPolicyRule | Select-Object Identity,ExceptIf*)}",
               {"ZapEnabled": True, "exceptions": "review"}),
+    AuditSpec("2.2.1", "Get-ProtectionAlert | Select-Object Name,Severity,ThreatType,RecipientTags,NotificationEnabled,NotifyUser,Disabled",
+              "Get-ProtectionAlert | Select-Object Name,Severity,ThreatType,RecipientTags,NotificationEnabled,NotifyUser,Disabled",
+              {"predicate": "emergency account monitoring alerts configured"}),
+    AuditSpec("2.4.1", "[pscustomobject]@{Tenant=(Get-EmailTenantSettings | Select-Object EnablePriorityAccountProtection);Alerts=@(Get-ProtectionAlert | Where-Object { $_.RecipientTags -match 'Priority account' } | Select-Object Name,Severity,ThreatType,Filter,RecipientTags,NotificationEnabled,NotifyUser,Disabled)}",
+              "[pscustomobject]@{Tenant=(Get-EmailTenantSettings | Select-Object EnablePriorityAccountProtection);Alerts=@(Get-ProtectionAlert | Where-Object { $_.RecipientTags -match 'Priority account' } | Select-Object Name,Severity,ThreatType,Filter,RecipientTags,NotificationEnabled,NotifyUser,Disabled)}",
+              {"predicate": "priority protection enabled with phishing and malware alerts"}),
     AuditSpec("3.1.1", "Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled",
               "Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled",
               {"UnifiedAuditLogIngestionEnabled": True, "search_results": "review"}),
@@ -164,7 +170,9 @@ def _script(selected: list[AuditSpec], result_path: str, tenantorganization: str
         "$ErrorActionPreference = 'Stop'",
         "if ($TenantOrganization) { Connect-ExchangeOnline -Organization $TenantOrganization -ShowBanner:$false } else { Connect-ExchangeOnline -ShowBanner:$false }",
         "if ($ExpectedTenantId) { $connection = Get-ConnectionInformation | Select-Object -First 1; if (-not $connection -or [string]$connection.TenantID -ne $ExpectedTenantId) { throw 'Connected Exchange tenant does not match expected tenant ID' } }",
-        *( ["Connect-IPPSSession"] if any(spec.cis.startswith("3.") for spec in selected) else [] ),
+        *(["Connect-IPPSSession"] if any(
+            spec.cis.startswith("3.") or spec.cis in {"2.2.1", "2.4.1"}
+            for spec in selected) else []),
         "$records = [System.Collections.Generic.List[object]]::new()",
     ]
     for spec in selected:

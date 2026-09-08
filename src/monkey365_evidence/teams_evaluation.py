@@ -27,6 +27,15 @@ def _single(data: Any, key: str) -> Any:
 
 
 def evaluate_teams(cis: str, data: Any) -> Evaluation:
+    if cis == "8.4.1":
+        return Evaluation("unknown", detail="App permission policies were collected; confirm org-wide app defaults in the Teams admin center")
+    if cis == "8.6.1":
+        enabled = _single(data, "AllowSecurityEndUserReporting")
+        if type(enabled) is not bool:
+            return Evaluation("unknown", detail="AllowSecurityEndUserReporting is missing or malformed")
+        if enabled is False:
+            return Evaluation("failure", ('"AllowSecurityEndUserReporting": false',), "Security concern reporting is disabled in Teams")
+        return Evaluation("unknown", detail="Teams reporting is enabled; confirm the Defender reporting mailbox settings")
     if cis == "8.1.1":
         return Evaluation(
             "unknown",

@@ -12,7 +12,7 @@ from monkey365_evidence.sharepoint_evaluation import evaluate_sharepoint
 def test_registry_covers_all_sharepoint_tenant_controls():
     assert set(REGISTRY) == {
         "7.2.1", "7.2.2", "7.2.3", "7.2.4", "7.2.5", "7.2.6",
-        "7.2.7", "7.2.8", "7.2.9", "7.2.10", "7.2.11", "7.3.1",
+        "7.2.7", "7.2.8", "7.2.9", "7.2.10", "7.2.11", "7.3.1", "7.3.2",
     }
     assert all("Set-SPO" not in spec.script for spec in REGISTRY.values())
 

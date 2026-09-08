@@ -23,6 +23,45 @@ _READ_SCOPES = (
 )
 _REGISTRY = (
     AuditSpec(
+        "5.1.2.1",
+        "$users=Get-MgUser -All -Property Id,UserPrincipalName; $users | ForEach-Object { $u=$_; $r=Invoke-MgGraphRequest -Method GET -Uri ('https://graph.microsoft.com/beta/users/'+$u.Id+'/authentication/requirements'); [pscustomobject]@{UserPrincipalName=$u.UserPrincipalName;PerUserMfaState=$r.perUserMfaState} }",
+        "$users=Get-MgUser -All -Property Id,UserPrincipalName; $users | ForEach-Object { $u=$_; $r=Invoke-MgGraphRequest -Method GET -Uri ('https://graph.microsoft.com/beta/users/'+$u.Id+'/authentication/requirements'); [pscustomobject]@{UserPrincipalName=$u.UserPrincipalName;PerUserMfaState=$r.perUserMfaState} }",
+        {"PerUserMfaState": "disabled for every user"},
+    ),
+    AuditSpec("5.1.4.1", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/deviceRegistrationPolicy'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/deviceRegistrationPolicy'", {"predicate": "device join restricted to approved users"}),
+    AuditSpec("5.1.4.4", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/deviceRegistrationPolicy'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/deviceRegistrationPolicy'", {"predicate": "local administrator assignment limited"}),
+    AuditSpec("5.1.5.3", "[pscustomobject]@{Default=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/defaultAppManagementPolicy');Custom=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/appManagementPolicies')} ", "[pscustomobject]@{Default=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/defaultAppManagementPolicy');Custom=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/appManagementPolicies')} ", {"predicate": "password addition is blocked"}),
+    AuditSpec("5.1.5.5", "[pscustomobject]@{Default=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/defaultAppManagementPolicy');Custom=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/appManagementPolicies')} ", "[pscustomobject]@{Default=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/defaultAppManagementPolicy');Custom=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/appManagementPolicies')} ", {"predicate": "new passwords are system generated"}),
+    AuditSpec("5.1.6.1", "[pscustomobject]@{Authorization=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/authorizationPolicy');CrossTenantDefault=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/crossTenantAccessPolicy/default')} ", "[pscustomobject]@{Authorization=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/authorizationPolicy');CrossTenantDefault=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/crossTenantAccessPolicy/default')} ", {"predicate": "collaboration invitations limited to approved domains"}),
+    AuditSpec("5.1.8.1", "Get-MgDirectoryOnPremiseSynchronization | Select-Object Id,Features", "Get-MgDirectoryOnPremiseSynchronization | Select-Object Id,Features", {"PasswordSyncEnabled": True}),
+    AuditSpec("4.2", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/deviceManagement/deviceEnrollmentConfigurations'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/deviceManagement/deviceEnrollmentConfigurations'", {"predicate": "default platform restrictions block personally owned devices"}),
+    *(
+        AuditSpec(
+            cis,
+            "Get-MgIdentityConditionalAccessPolicy -All | Select-Object Id,DisplayName,State,Conditions,SessionControls,GrantControls",
+            "Get-MgIdentityConditionalAccessPolicy -All | Select-Object Id,DisplayName,State,Conditions,SessionControls,GrantControls",
+            {"predicate": predicate},
+        )
+        for cis, predicate in {
+            "5.2.2.2": "MFA for all users",
+            "5.2.2.3": "legacy authentication blocked",
+            "5.2.2.8": "medium and high sign-in risk blocked",
+            "5.2.2.9": "managed device required for authentication",
+            "5.2.2.12": "device code sign-in flow blocked",
+            "5.2.2.15": "exclusionary geographic access controls",
+            "5.2.2.16": "token protection enforced",
+            "5.2.2.17": "authentication transfer blocked",
+        }.items()
+    ),
+    AuditSpec("5.2.2.14", "Get-MgIdentityConditionalAccessNamedLocation -All | Select-Object Id,DisplayName,IsTrusted,AdditionalProperties", "Get-MgIdentityConditionalAccessNamedLocation -All | Select-Object Id,DisplayName,IsTrusted,AdditionalProperties", {"predicate": "at least one trusted named location"}),
+    AuditSpec("5.2.3.1", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/MicrosoftAuthenticator'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/MicrosoftAuthenticator'", {"predicate": "number matching and application context enabled"}),
+    AuditSpec("5.2.3.10", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/MicrosoftAuthenticator'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/MicrosoftAuthenticator'", {"predicate": "companion app authentication disabled"}),
+    AuditSpec("5.3.1", "[pscustomobject]@{Eligible=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/roleManagement/directory/roleEligibilityScheduleInstances');Active=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignmentScheduleInstances')} ", "[pscustomobject]@{Eligible=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/roleManagement/directory/roleEligibilityScheduleInstances');Active=(Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignmentScheduleInstances')} ", {"predicate": "privileged roles eligible rather than permanent"}),
+    AuditSpec("5.3.2", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/identityGovernance/accessReviews/definitions'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/identityGovernance/accessReviews/definitions'", {"predicate": "recurring guest access review"}),
+    AuditSpec("5.3.3", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/identityGovernance/accessReviews/definitions'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/identityGovernance/accessReviews/definitions'", {"predicate": "recurring privileged role access review"}),
+    AuditSpec("5.3.4", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/roleManagementPolicies?$expand=rules'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/roleManagementPolicies?$expand=rules'", {"predicate": "Global Administrator activation requires approval"}),
+    AuditSpec("5.3.5", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/roleManagementPolicies?$expand=rules'", "Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/policies/roleManagementPolicies?$expand=rules'", {"predicate": "Privileged Role Administrator activation requires approval"}),
+    AuditSpec(
         "1.1.1",
         "Get-MgDirectoryRole -All | ForEach-Object { $role=$_; Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | ForEach-Object { Get-MgUser -UserId $_.Id -Property Id,UserPrincipalName,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,OnPremisesSyncEnabled,@{Name='Role';Expression={$role.DisplayName}} } }",
         "Get-MgDirectoryRole -All | ForEach-Object { $role=$_; Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | ForEach-Object { Get-MgUser -UserId $_.Id -Property Id,UserPrincipalName,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,OnPremisesSyncEnabled,@{Name='Role';Expression={$role.DisplayName}} } }",

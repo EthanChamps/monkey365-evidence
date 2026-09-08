@@ -3,7 +3,7 @@ from monkey365_evidence.teams_evaluation import evaluate_teams
 
 
 def test_all_benchmark_global_teams_controls_are_registered():
-    assert len(REGISTRY) == 15
+    assert len(REGISTRY) == 17
     assert {"8.1.1", "8.1.2", "8.2.1", "8.2.2", "8.2.3", "8.2.4"} <= REGISTRY.keys()
     assert {f"8.5.{number}" for number in range(1, 10)} <= REGISTRY.keys()
 

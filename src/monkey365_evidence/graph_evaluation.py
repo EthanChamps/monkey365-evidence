@@ -7,7 +7,11 @@ from typing import Any
 
 from .audit_evaluation import Evaluation
 
-_CA_CONTROLS = {"5.2.2.1", "5.2.2.4", "5.2.2.5", "5.2.2.6", "5.2.2.7", "5.2.2.10", "5.2.2.11", "5.2.2.13"}
+_CA_CONTROLS = {
+    "5.2.2.1", "5.2.2.2", "5.2.2.3", "5.2.2.4", "5.2.2.5", "5.2.2.6",
+    "5.2.2.7", "5.2.2.8", "5.2.2.9", "5.2.2.10", "5.2.2.11", "5.2.2.12",
+    "5.2.2.13", "5.2.2.15", "5.2.2.16", "5.2.2.17",
+}
 
 
 def evaluate_graph(cis: str, data: Any) -> Evaluation:
@@ -116,6 +120,36 @@ def evaluate_graph(cis: str, data: Any) -> Evaluation:
 
     if cis in {"5.1.5.4", "5.1.5.6"}:
         return _evaluate_credential_lifetime(cis, data)
+
+    if cis == "5.1.2.1":
+        if not isinstance(data, list):
+            return Evaluation("unknown", detail="Per-user MFA state collection is malformed")
+        enabled = [item for item in data if isinstance(item, dict)
+                   and str(item.get("PerUserMfaState", "")).casefold() != "disabled"]
+        if any(not isinstance(item, dict) or "PerUserMfaState" not in item for item in data):
+            return Evaluation("unknown", detail="A user is missing PerUserMfaState")
+        if enabled:
+            return Evaluation("failure", tuple(json.dumps(item.get("UserPrincipalName"), ensure_ascii=False)
+                              for item in enabled), "Legacy per-user MFA is enabled or enforced for one or more users")
+        return Evaluation("no_failure", detail="Legacy per-user MFA is disabled for all returned users")
+
+    if cis == "5.1.8.1":
+        if not isinstance(data, list) or len(data) != 1 or not isinstance(data[0], dict):
+            return Evaluation("unknown", detail="Directory synchronization settings are missing or malformed")
+        features = data[0].get("Features")
+        if not isinstance(features, dict) or type(features.get("PasswordSyncEnabled")) is not bool:
+            return Evaluation("unknown", detail="PasswordSyncEnabled is missing or malformed")
+        if features["PasswordSyncEnabled"] is False:
+            return Evaluation("failure", ('"PasswordSyncEnabled": false',), "Password hash synchronization is disabled")
+        return Evaluation("no_failure", detail="Password hash synchronization is enabled")
+
+    if cis == "5.2.2.14":
+        if not isinstance(data, list):
+            return Evaluation("unknown", detail="Named-location collection is malformed")
+        trusted = [item for item in data if isinstance(item, dict) and item.get("IsTrusted") is True]
+        if not trusted:
+            return Evaluation("failure", ("[]",), "No trusted named location was returned")
+        return Evaluation("unknown", detail="Trusted named locations exist; confirm their networks are approved")
 
     return Evaluation("unknown", detail=f"No Graph evaluator is defined for CIS control {cis}")
 
