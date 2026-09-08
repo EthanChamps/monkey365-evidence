@@ -16,6 +16,7 @@ GRAPH_MODULES = (
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users",
     "Microsoft.Graph.Identity.DirectoryManagement",
+    "Microsoft.Graph.Applications",
 )
 TEAMS_MODULES = ("MicrosoftTeams",)
 FABRIC_MODULES = ("Az.Accounts",)

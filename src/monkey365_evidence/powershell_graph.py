@@ -19,8 +19,45 @@ _READ_SCOPES = (
     "RoleManagement.Read.Directory",
     "User.Read.All",
     "Directory.Read.All",
+    "Application.Read.All",
 )
 _REGISTRY = (
+    AuditSpec(
+        "1.1.1",
+        "Get-MgDirectoryRole -All | ForEach-Object { $role=$_; Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | ForEach-Object { Get-MgUser -UserId $_.Id -Property Id,UserPrincipalName,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,OnPremisesSyncEnabled,@{Name='Role';Expression={$role.DisplayName}} } }",
+        "Get-MgDirectoryRole -All | ForEach-Object { $role=$_; Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | ForEach-Object { Get-MgUser -UserId $_.Id -Property Id,UserPrincipalName,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,OnPremisesSyncEnabled,@{Name='Role';Expression={$role.DisplayName}} } }",
+        {"predicate": "privileged users are cloud-only"},
+    ),
+    AuditSpec(
+        "1.1.2",
+        "Get-MgUser -All -Filter 'accountEnabled eq true' -Property Id,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled",
+        "Get-MgUser -All -Filter 'accountEnabled eq true' -Property Id,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled | Select-Object Id,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled",
+        {"predicate": "manual emergency access account identification"},
+    ),
+    AuditSpec(
+        "1.1.3",
+        "$role=Get-MgDirectoryRole -All | Where-Object DisplayName -eq 'Global Administrator'; if ($role) { Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | Select-Object Id }",
+        "$role=Get-MgDirectoryRole -All | Where-Object DisplayName -eq 'Global Administrator'; if ($role) { Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All | Select-Object Id }",
+        {"predicate": "between two and four Global Administrators"},
+    ),
+    AuditSpec(
+        "5.1.5.2",
+        "Get-MgPolicyAdminConsentRequestPolicy | Select-Object Id,IsEnabled,NotifyReviewers,RemindersEnabled,RequestDurationInDays,Reviewer",
+        "Get-MgPolicyAdminConsentRequestPolicy | Select-Object Id,IsEnabled,NotifyReviewers,RemindersEnabled,RequestDurationInDays,Reviewer",
+        {"IsEnabled": True},
+    ),
+    AuditSpec(
+        "5.1.5.4",
+        "Get-MgApplication -All -Property Id,DisplayName,PasswordCredentials | Select-Object Id,DisplayName,PasswordCredentials",
+        "Get-MgApplication -All -Property Id,DisplayName,PasswordCredentials | Select-Object Id,DisplayName,PasswordCredentials",
+        {"predicate": "application password lifetime no more than 180 days"},
+    ),
+    AuditSpec(
+        "5.1.5.6",
+        "Get-MgApplication -All -Property Id,DisplayName,KeyCredentials | Select-Object Id,DisplayName,KeyCredentials",
+        "Get-MgApplication -All -Property Id,DisplayName,KeyCredentials | Select-Object Id,DisplayName,KeyCredentials",
+        {"predicate": "application certificate lifetime no more than 180 days"},
+    ),
     AuditSpec(
         "5.2.2.1",
         "Get-MgIdentityConditionalAccessPolicy -All | Select-Object Id,DisplayName,State,Conditions,SessionControls,GrantControls",
