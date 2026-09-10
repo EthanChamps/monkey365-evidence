@@ -14,6 +14,7 @@ from .audit_capture import (
     capture_sharepoint_audits,
     capture_teams_audits,
 )
+from .checkpoint import write_checkpoint
 from .collector import capture_controls
 from .defaults import resource_path
 from .manifest import load_manifest
@@ -177,7 +178,7 @@ def _main() -> int:
                        teams=bool(teams_ids), fabric=bool(fabric_ids),
                        sharepoint=bool(sharepoint_ids),
                        interactive=not args.non_interactive)
-    run_dir = args.output / datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+    run_dir = args.output.resolve() / datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
     run_dir.mkdir(parents=True, exist_ok=False)
     results = [CaptureResult(cis, "skipped", detail="Route is disabled") for cis in disabled]
     results.extend(CaptureResult(cis, "skipped", detail="No route configured")
@@ -210,21 +211,25 @@ def _main() -> int:
         "graph_evidence_source": "live_graph",
     }
     destination = run_dir / "run-manifest.json"
-    def checkpoint(status="running"):
+    def checkpoint(status="running", *, required=True):
         report["status"] = status
         report["results"] = [
             {**asdict(result), "path": str(result.path) if result.path else None}
             for result in results
         ]
-        temporary = destination.with_suffix(".tmp")
-        temporary.write_text(json.dumps(report, indent=2), encoding="utf-8")
-        temporary.replace(destination)
+        try:
+            write_checkpoint(destination, report)
+        except OSError as error:
+            print(f"Cannot save run manifest to {destination}: {error}", flush=True)
+            if required:
+                raise
 
     def completed(result):
         results.append(result)
-        checkpoint()
         if result.status in {"failed", "skipped"}:
-            print(f"CIS {result.cis}: {result.status}: {result.detail or 'No error detail available'}")
+            print(f"CIS {result.cis}: {result.status}: {result.detail or 'No error detail available'}",
+                  flush=True)
+        checkpoint(required=False)
 
     checkpoint()
     interrupted = False

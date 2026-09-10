@@ -206,6 +206,10 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
             'input[type="password"]'
         ).count():
             raise RuntimeError("authentication page cannot be captured as evidence")
+        # The operator may have moved/removed the run folder while signing in.
+        # Recreate it before capture; final manifest checks still detect any
+        # earlier evidence files that were removed.
+        output.mkdir(parents=True, exist_ok=True)
         destination = output / control.filename
         if destination.exists():
             raise RuntimeError(f"refusing to overwrite existing evidence: {destination.name}")
