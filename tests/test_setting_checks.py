@@ -2,10 +2,14 @@ from monkey365_evidence.collector import setting_matches
 
 
 class Setting:
-    def __init__(self, *, value="", checked=False, text=""):
+    def __init__(self, *, value="", checked=False, text="", count=1):
         self.value = value
         self.checked = checked
         self.text = text
+        self._count = count
+
+    def count(self):
+        return self._count
 
     def input_value(self):
         return self.value
@@ -30,6 +34,11 @@ def test_exact_and_checked_settings():
     assert setting_matches(Setting(value="180"), {"not_value": "0"})
     assert setting_matches(Setting(checked=True), {"checked": True})
     assert not setting_matches(Setting(checked=False), {"checked": True})
+
+
+def test_minimum_locator_count():
+    assert setting_matches(Setting(count=1), {"min_count": 1})
+    assert not setting_matches(Setting(count=0), {"min_count": 1})
 
 
 def test_allowed_values_and_status_text():

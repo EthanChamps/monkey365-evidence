@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+from monkey365_evidence.cli import sharepoint_fallback_ids
+from monkey365_evidence.manifest import load_manifest
 from monkey365_evidence.powershell_sharepoint import REGISTRY, run_audits, validate_admin_url
 from monkey365_evidence.sharepoint_evaluation import evaluate_sharepoint
 
@@ -15,6 +17,29 @@ def test_registry_covers_all_sharepoint_tenant_controls():
         "7.2.7", "7.2.8", "7.2.9", "7.2.10", "7.2.11", "7.3.1", "7.3.2",
     }
     assert all("Set-SPO" not in spec.script for spec in REGISTRY.values())
+
+
+def test_ui_routes_cover_every_v7_sharepoint_control_with_a_documented_ui_check():
+    root = Path(__file__).parents[1]
+    hosts, controls = load_manifest(root / "controls.v7.json")
+    assert set(controls) & {
+        "7.2.1", "7.2.3", "7.2.4", "7.2.5", "7.2.6", "7.2.7", "7.2.8",
+        "7.2.9", "7.2.10", "7.2.11",
+    } == {
+        "7.2.1", "7.2.3", "7.2.4", "7.2.5", "7.2.6", "7.2.7", "7.2.8",
+        "7.2.9", "7.2.10", "7.2.11",
+    }
+    assert "7.2.2" not in controls and "7.3.1" not in controls
+    assert any(host.startswith("re:[a-z0-9-]+-admin") for host in hosts)
+    assert all(controls[cis].expected_url_pattern for cis in controls if cis.startswith("7."))
+
+
+def test_powershell_is_only_used_for_sharepoint_controls_without_ui_routes():
+    root = Path(__file__).parents[1]
+    _, controls = load_manifest(root / "controls.v7.json")
+    selected = {"7.2.2", "7.2.3", "7.2.4", "7.3.1"}
+    assert sharepoint_fallback_ids(selected, controls, True) == ["7.2.2", "7.3.1"]
+    assert sharepoint_fallback_ids(selected, controls, False) == []
 
 
 def test_admin_url_is_strictly_validated():

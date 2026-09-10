@@ -47,6 +47,11 @@ def selected_controls(args, controls):
     return rules, mapping, mapped, chosen, findings
 
 
+def sharepoint_fallback_ids(mapped: set[str], controls, enabled: bool) -> list[str]:
+    """Return only SharePoint controls that cannot be captured in the portal."""
+    return sorted((mapped & SHAREPOINT_AUDITS.keys()) - controls.keys()) if enabled else []
+
+
 def main() -> int:
     try:
         return _main()
@@ -117,7 +122,10 @@ def _main() -> int:
     graph_ids = graph_controls
     teams_ids = sorted(mapped & TEAMS_AUDITS.keys()) if args.powershell else []
     fabric_ids = sorted(mapped & FABRIC_AUDITS.keys()) if args.powershell else []
-    sharepoint_ids = sorted(mapped & SHAREPOINT_AUDITS.keys()) if args.powershell else []
+    # Prefer portal screenshots for SharePoint settings that have a stable UI route.
+    # The remaining SharePoint controls are collected as read-only PowerShell fallback
+    # evidence when explicitly requested.
+    sharepoint_ids = sharepoint_fallback_ids(mapped, controls, args.powershell)
     powershell_ids = (set(audit_ids) | set(graph_controls) | set(teams_ids) |
                       set(fabric_ids) | set(sharepoint_ids))
     chosen = [control for control in chosen if control.cis not in powershell_ids]

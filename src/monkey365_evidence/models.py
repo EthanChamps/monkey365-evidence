@@ -25,7 +25,9 @@ class Control:
     ready_selector: str | None = None
     highlight_selectors: tuple[str, ...] = ()
     expected_checks: tuple[dict[str, Any], ...] = ()
+    expected_any_checks: tuple[tuple[dict[str, Any], ...], ...] = ()
     frame_selector: str | None = None
+    expected_url_pattern: str | None = None
 
     @property
     def filename(self) -> str:

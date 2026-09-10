@@ -20,8 +20,8 @@ MUTATING_LABEL = re.compile(
 )
 
 
-def _assert_allowed(page: Page, allowed_hosts: set[str]) -> None:
-    validate_url(page.url, allowed_hosts)
+def _assert_allowed(page: Page, allowed_hosts: set[str], host_patterns=()) -> None:
+    validate_url(page.url, allowed_hosts, host_patterns)
 
 
 def wait_for_rendered(page: Page, locator: Locator, timeout: int = 30_000) -> None:
@@ -72,6 +72,26 @@ def navigate_click(page: Page, selector: str, hosts: set[str], timeout: int,
         raise RuntimeError("read-only clicks require a navigation link or tab")
 
 
+def expand_section(page: Page, selector: str, timeout: int, frame_selector: str | None = None) -> None:
+    """Open an aria disclosure control without changing any tenant setting."""
+    scope = page.frame_locator(frame_selector) if frame_selector else page
+    locator = scope.locator(selector)
+    if locator.count() != 1:
+        raise RuntimeError(f"expand control must identify exactly one element: {selector}")
+    locator.wait_for(state="visible", timeout=timeout)
+    attributes = locator.evaluate("""el => ({
+        tag: el.tagName.toLowerCase(), role: el.getAttribute('role'),
+        text: el.getAttribute('aria-label') || el.textContent,
+        expanded: el.getAttribute('aria-expanded')
+    })""")
+    if (attributes["tag"] != "button" and attributes["role"] != "button") or (
+        attributes["expanded"] not in {"true", "false"}
+    ) or MUTATING_LABEL.search(attributes["text"] or ""):
+        raise RuntimeError("refused a non-disclosure expand action")
+    if attributes["expanded"] == "false":
+        locator.click(timeout=timeout)
+
+
 def screenshot_control(page: Page, control: Control, destination: Path) -> bool:
     """Outline the exact setting in the browser, then restore its presentation."""
     highlighted = []
@@ -106,6 +126,8 @@ def screenshot_control(page: Page, control: Control, destination: Path) -> bool:
 
 def setting_matches(locator: Locator, check: dict) -> bool:
     """Compare a visible form setting without changing it."""
+    if "min_count" in check and locator.count() < check["min_count"]:
+        return False
     if "checked" in check and locator.is_checked() != check["checked"]:
         return False
     if any(key in check for key in (
@@ -147,13 +169,21 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
             timeout = step.get("timeout_ms", 30_000)
             if step["action"] == "click":
                 navigate_click(page, step["selector"], hosts, timeout, control.frame_selector)
+            elif step["action"] == "expand":
+                expand_section(page, step["selector"], timeout, control.frame_selector)
             elif step["action"] == "wait_for":
                 scope.locator(step["selector"]).wait_for(
                     state=step.get("state", "visible"), timeout=timeout
                 )
         if not control.expected_url or not control.ready_selector:
             raise RuntimeError("route requires expected_url and ready_selector")
-        page.wait_for_url(lambda url: str(url) == control.expected_url, timeout=30_000)
+        if control.expected_url:
+            page.wait_for_url(lambda url: str(url) == control.expected_url, timeout=30_000)
+        elif control.expected_url_pattern:
+            pattern = re.compile(control.expected_url_pattern)
+            page.wait_for_url(lambda url: bool(pattern.fullmatch(str(url))), timeout=30_000)
+        else:
+            raise RuntimeError("route requires expected_url or expected_url_pattern")
         wait_for_rendered(page, scope.locator(control.ready_selector))
         scope.locator(control.ready_selector).scroll_into_view_if_needed()
         _assert_allowed(page, hosts)
@@ -167,10 +197,27 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
         failing_checks = []
         for check in control.expected_checks:
             setting = scope.locator(check["selector"])
+            if "min_count" in check:
+                if not setting_matches(setting, check):
+                    failing_checks.append(check)
+                continue
             wait_for_rendered(page, setting)
             if not setting_matches(setting, check):
                 failing_checks.append(check)
-        if control.expected_checks and not failing_checks:
+        if control.expected_any_checks:
+            matching_groups = []
+            for group in control.expected_any_checks:
+                group_matches = True
+                for check in group:
+                    setting = scope.locator(check["selector"])
+                    if setting.count() == 0 or not setting_matches(setting, check):
+                        group_matches = False
+                        failing_checks.append(check)
+                matching_groups.append(group_matches)
+            if any(matching_groups):
+                failing_checks = [check for check in failing_checks
+                                  if check in control.expected_checks]
+        if (control.expected_checks or control.expected_any_checks) and not failing_checks:
             screenshot_control(page, replace(control, highlight_selectors=()), destination)
             return CaptureResult(
                 control.cis, "needs_review", destination,
