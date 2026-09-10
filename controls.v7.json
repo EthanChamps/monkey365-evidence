@@ -757,7 +757,7 @@
       "cis": "7.2.1",
       "title": "SharePoint modern authentication",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=Apps that don't use modern authentication",
       "screenshot_selector": "main",
       "expected_checks": [
@@ -768,8 +768,8 @@
         }
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Access control']", "navigation": true}
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Access control']", "navigation": true}
       ],
       "full_page": false,
       "enabled": true
@@ -778,7 +778,7 @@
       "cis": "7.2.3",
       "title": "SharePoint external content sharing",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=External sharing",
       "screenshot_selector": "main",
       "expected_any_checks": [
@@ -787,8 +787,8 @@
         [{"selector": "label:has-text(\"Only people in your organization\") input[type=radio]", "checked": true, "highlight_selector": "text=SharePoint >> xpath=.."}]
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true}
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true}
       ],
       "full_page": false,
       "enabled": true
@@ -797,15 +797,15 @@
       "cis": "7.2.4",
       "title": "OneDrive content sharing",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=External sharing",
       "screenshot_selector": "main",
       "expected_checks": [
         {"selector": "label:has-text(\"Only people in your organization\") input[type=radio]", "checked": true, "highlight_selector": "text=OneDrive >> xpath=.."}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true}
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true}
       ],
       "full_page": false,
       "enabled": true
@@ -814,15 +814,15 @@
       "cis": "7.2.5",
       "title": "Guest item resharing",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=More external sharing settings",
       "screenshot_selector": "main",
       "expected_checks": [
         {"selector": "label:has-text(\"Allow guests to share items they don't own\") input[type=checkbox]", "checked": false, "highlight_selector": "label:has-text(\"Allow guests to share items they don't own\")"}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true},
         {"action": "expand", "selector": "role=button[name='More external sharing settings']"}
       ],
       "full_page": false,
@@ -832,7 +832,7 @@
       "cis": "7.2.6",
       "title": "SharePoint external-sharing domain restriction",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=More external sharing settings",
       "screenshot_selector": "main",
       "expected_any_checks": [
@@ -844,8 +844,8 @@
         ]
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true},
         {"action": "expand", "selector": "role=button[name='More external sharing settings']"}
       ],
       "full_page": false,
@@ -855,7 +855,7 @@
       "cis": "7.2.7",
       "title": "Default sharing-link type",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=File and folder links",
       "screenshot_selector": "main",
       "expected_any_checks": [
@@ -863,8 +863,8 @@
         [{"selector": "label:has-text(\"Only people in your organization\") input[type=radio]", "checked": true, "highlight_selector": "text=Choose the type of link >> xpath=.."}]
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true}
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true}
       ],
       "full_page": false,
       "enabled": true
@@ -873,7 +873,7 @@
       "cis": "7.2.8",
       "title": "External sharing security-group restriction",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=More external sharing settings",
       "screenshot_selector": "main",
       "expected_checks": [
@@ -881,8 +881,8 @@
         {"selector": "[aria-label*='security groups'] [role=option]", "min_count": 1, "highlight_selector": "text=Allow only users in specific security groups to share externally >> xpath=.."}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true},
         {"action": "expand", "selector": "role=button[name='More external sharing settings']"}
       ],
       "full_page": false,
@@ -892,7 +892,7 @@
       "cis": "7.2.9",
       "title": "SharePoint and OneDrive guest expiration",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=Guest access to a site or OneDrive will expire automatically",
       "screenshot_selector": "main",
       "expected_checks": [
@@ -900,8 +900,8 @@
         {"selector": "input[aria-label*='Guest access to a site or OneDrive']", "value": "30", "highlight_selector": "text=Guest access to a site or OneDrive will expire automatically >> xpath=.."}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true},
         {"action": "expand", "selector": "role=button[name='More external sharing settings']"}
       ],
       "full_page": false,
@@ -911,7 +911,7 @@
       "cis": "7.2.10",
       "title": "Verification-code reauthentication",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=People who use a verification code must reauthenticate",
       "screenshot_selector": "main",
       "expected_checks": [
@@ -919,8 +919,8 @@
         {"selector": "input[aria-label*='People who use a verification code']", "max_value": 15, "highlight_selector": "text=People who use a verification code must reauthenticate >> xpath=.."}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true},
         {"action": "expand", "selector": "role=button[name='More external sharing settings']"}
       ],
       "full_page": false,
@@ -930,15 +930,15 @@
       "cis": "7.2.11",
       "title": "Default sharing-link permission",
       "start_url": "https://admin.microsoft.com/sharepoint",
-      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx\\?modern=true#/.+",
+      "expected_url_pattern": "https://[a-z0-9-]+-admin\\.sharepoint\\.com/_layouts/15/online/AdminHome\\.aspx(?:\\?modern=true)?(?:#/.+)?",
       "ready_selector": "text=File and folder links",
       "screenshot_selector": "main",
       "expected_checks": [
         {"selector": "label:has-text(\"View\") input[type=radio]", "checked": true, "highlight_selector": "text=Choose the permission that's selected by default >> xpath=.."}
       ],
       "steps": [
-        {"action": "click", "selector": "role=link[name='Policies']", "navigation": true},
-        {"action": "click", "selector": "role=link[name='Sharing']", "navigation": true}
+        {"action": "click", "selector": "role=button[name='Policies']", "navigation": true},
+        {"action": "click", "selector": "role=button[name='Sharing']", "navigation": true}
       ],
       "full_page": false,
       "enabled": true

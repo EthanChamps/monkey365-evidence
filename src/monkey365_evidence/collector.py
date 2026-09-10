@@ -66,7 +66,7 @@ def navigate_click(page: Page, selector: str, hosts: set[str], timeout: int,
         destination = urljoin(page.url, attributes["href"])
         validate_url(destination, hosts)
         page.goto(destination, wait_until="domcontentloaded", timeout=timeout)
-    elif attributes["role"] == "tab":
+    elif attributes["role"] in {"tab", "button"} or attributes["tag"] == "button":
         locator.click(timeout=timeout)
     else:
         raise RuntimeError("read-only clicks require a navigation link or tab")
@@ -162,7 +162,11 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
                  *, retry_timeout: bool = True) -> CaptureResult:
     try:
         validate_url(control.start_url, hosts)
-        page.goto(control.start_url, wait_until="domcontentloaded")
+        # SharePoint Admin Center redirects the generic admin URL while its SPA
+        # starts. Waiting only for the navigation commit avoids treating that
+        # legitimate redirect as a failed capture.
+        page.goto(control.start_url, wait_until="commit")
+        page.wait_for_timeout(750)
         scope = page.frame_locator(control.frame_selector) if control.frame_selector else page
         for step in control.steps:
             _assert_allowed(page, hosts)

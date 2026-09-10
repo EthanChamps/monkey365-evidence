@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from monkey365_evidence.cli import sharepoint_fallback_ids
+from monkey365_evidence.cli import sharepoint_browser_controls, sharepoint_fallback_ids
 from monkey365_evidence.manifest import load_manifest
 from monkey365_evidence.powershell_sharepoint import REGISTRY, run_audits, validate_admin_url
 from monkey365_evidence.sharepoint_evaluation import evaluate_sharepoint
@@ -40,6 +40,17 @@ def test_powershell_is_only_used_for_sharepoint_controls_without_ui_routes():
     selected = {"7.2.2", "7.2.3", "7.2.4", "7.3.1"}
     assert sharepoint_fallback_ids(selected, controls, True) == ["7.2.2", "7.3.1"]
     assert sharepoint_fallback_ids(selected, controls, False) == []
+
+
+def test_sharepoint_browser_routes_use_the_supplied_tenant_admin_url():
+    root = Path(__file__).parents[1]
+    _, controls = load_manifest(root / "controls.v7.json")
+    bound = sharepoint_browser_controls(
+        [controls["7.2.4"]], "https://example-admin.sharepoint.com/"
+    )
+    assert bound[0].start_url == (
+        "https://example-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx?modern=true#/home"
+    )
 
 
 def test_admin_url_is_strictly_validated():

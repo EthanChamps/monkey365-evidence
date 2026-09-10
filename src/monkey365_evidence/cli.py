@@ -24,6 +24,7 @@ from .powershell_dependencies import ensure_modules
 from .powershell_fabric import REGISTRY as FABRIC_AUDITS
 from .powershell_graph import REGISTRY as GRAPH_AUDITS
 from .powershell_sharepoint import REGISTRY as SHAREPOINT_AUDITS
+from .powershell_sharepoint import validate_admin_url
 from .powershell_teams import REGISTRY as TEAMS_AUDITS
 
 
@@ -50,6 +51,16 @@ def selected_controls(args, controls):
 def sharepoint_fallback_ids(mapped: set[str], controls, enabled: bool) -> list[str]:
     """Return only SharePoint controls that cannot be captured in the portal."""
     return sorted((mapped & SHAREPOINT_AUDITS.keys()) - controls.keys()) if enabled else []
+
+
+def sharepoint_browser_controls(chosen, sharepoint_admin_url: str | None):
+    """Bind bundled SharePoint routes to the tenant specified by the operator."""
+    if sharepoint_admin_url is None:
+        return chosen
+    validate_admin_url(sharepoint_admin_url)
+    home = sharepoint_admin_url.rstrip("/") + "/_layouts/15/online/AdminHome.aspx?modern=true#/home"
+    return [replace(control, start_url=home) if control.cis.startswith("7.") else control
+            for control in chosen]
 
 
 def main() -> int:
@@ -117,6 +128,7 @@ def _main() -> int:
         if cis and isinstance(title, str) and title.strip():
             titles[cis] = title.strip()
     chosen = [replace(control, title=titles[control.cis]) for control in chosen]
+    chosen = sharepoint_browser_controls(chosen, args.sharepoint_admin_url)
     audit_ids = sorted(mapped & AUDITS.keys()) if args.powershell else []
     graph_controls = sorted(mapped & GRAPH_AUDITS.keys()) if args.powershell else []
     graph_ids = graph_controls

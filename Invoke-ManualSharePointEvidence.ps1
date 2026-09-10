@@ -9,6 +9,8 @@ param(
     [ValidatePattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]
     [string] $ExpectedTenantId,
 
+    [switch] $BrowserOnly,
+
     [switch] $NonInteractive
 )
 
@@ -51,10 +53,12 @@ $captureArguments = @(
     '--monkey365', $findingsPath,
     '--rule-map', $mapPath,
     '--controls', ($controls -join ','),
-    '--powershell',
     '--sharepoint-admin-url', $SharePointAdminUrl,
     '--output', $Output
 )
+if (-not $BrowserOnly) {
+    $captureArguments += '--powershell'
+}
 if ($ExpectedTenantId) {
     $captureArguments += @('--expected-tenant-id', $ExpectedTenantId)
 }
