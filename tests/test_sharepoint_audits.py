@@ -42,6 +42,13 @@ def test_powershell_is_only_used_for_sharepoint_controls_without_ui_routes():
     assert sharepoint_fallback_ids(selected, controls, False) == []
 
 
+def test_manual_wrapper_browser_only_excludes_powershell_only_controls():
+    script = (Path(__file__).parents[1] / "Invoke-ManualSharePointEvidence.ps1").read_text(
+        encoding="utf-8"
+    )
+    assert "$controls = @($controls | Where-Object { $_ -notin @('7.2.2', '7.3.1') })" in script
+
+
 def test_sharepoint_browser_routes_use_the_supplied_tenant_admin_url():
     root = Path(__file__).parents[1]
     _, controls = load_manifest(root / "controls.v7.json")
@@ -52,6 +59,38 @@ def test_sharepoint_browser_routes_use_the_supplied_tenant_admin_url():
         "https://example-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx?modern=true#/sharing"
     )
     assert bound[0].steps == ()
+
+
+def test_sharepoint_modern_auth_route_is_direct_and_tenant_pinned():
+    root = Path(__file__).parents[1]
+    _, controls = load_manifest(root / "controls.v7.json")
+    bound = sharepoint_browser_controls(
+        [controls["7.2.1"]], "https://example-admin.sharepoint.com/"
+    )
+    assert bound[0].start_url == (
+        "https://example-admin.sharepoint.com/_layouts/15/online/"
+        "AdminHome.aspx?modern=true#/accessControl/LegacyAuthentication"
+    )
+    assert bound[0].expected_url == bound[0].start_url
+    assert bound[0].expected_url_pattern is None
+
+
+def test_sharepoint_browser_routes_require_a_tenant_admin_url():
+    root = Path(__file__).parents[1]
+    _, controls = load_manifest(root / "controls.v7.json")
+    with pytest.raises(ValueError, match="sharepoint-admin-url"):
+        sharepoint_browser_controls([controls["7.2.4"]], None)
+
+
+def test_sharepoint_binding_preserves_disclosure_steps():
+    root = Path(__file__).parents[1]
+    _, controls = load_manifest(root / "controls.v7.json")
+    bound = sharepoint_browser_controls(
+        [controls["7.2.5"]], "https://example-admin.sharepoint.com"
+    )
+    assert bound[0].steps == tuple(
+        step for step in controls["7.2.5"].steps if step["action"] == "expand"
+    )
 
 
 def test_admin_url_is_strictly_validated():

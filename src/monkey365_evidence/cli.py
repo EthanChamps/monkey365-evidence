@@ -56,14 +56,20 @@ def sharepoint_fallback_ids(mapped: set[str], controls, enabled: bool) -> list[s
 def sharepoint_browser_controls(chosen, sharepoint_admin_url: str | None):
     """Bind bundled SharePoint routes to the tenant specified by the operator."""
     if sharepoint_admin_url is None:
+        if any(control.cis.startswith("7.") for control in chosen):
+            raise ValueError("SharePoint browser capture requires --sharepoint-admin-url "
+                             "https://TENANT-admin.sharepoint.com/")
         return chosen
     validate_admin_url(sharepoint_admin_url)
     base = sharepoint_admin_url.rstrip("/") + "/_layouts/15/online/AdminHome.aspx?modern=true#"
     routes = {
-        "7.2.1": "/accessControl",
+        "7.2.1": "/accessControl/LegacyAuthentication",
     }
     return [
-        replace(control, start_url=base + routes.get(control.cis, "/sharing"), steps=())
+        replace(control, start_url=base + routes.get(control.cis, "/sharing"),
+                expected_url=base + routes.get(control.cis, "/sharing"),
+                expected_url_pattern=None,
+                steps=tuple(step for step in control.steps if step["action"] != "click"))
         if control.cis.startswith("7.") else control
         for control in chosen
     ]
@@ -134,7 +140,8 @@ def _main() -> int:
         if cis and isinstance(title, str) and title.strip():
             titles[cis] = title.strip()
     chosen = [replace(control, title=titles[control.cis]) for control in chosen]
-    chosen = sharepoint_browser_controls(chosen, args.sharepoint_admin_url)
+    if args.command == "capture":
+        chosen = sharepoint_browser_controls(chosen, args.sharepoint_admin_url)
     audit_ids = sorted(mapped & AUDITS.keys()) if args.powershell else []
     graph_controls = sorted(mapped & GRAPH_AUDITS.keys()) if args.powershell else []
     graph_ids = graph_controls

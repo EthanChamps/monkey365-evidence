@@ -2,11 +2,14 @@ from monkey365_evidence.collector import setting_matches
 
 
 class Setting:
-    def __init__(self, *, value="", checked=False, text="", count=1):
+    def __init__(self, *, value="", checked=False, text="", count=1,
+                 role=None, aria_valuenow=None):
         self.value = value
         self.checked = checked
         self.text = text
         self._count = count
+        self.role = role
+        self.aria_valuenow = aria_valuenow
 
     def count(self):
         return self._count
@@ -19,6 +22,12 @@ class Setting:
 
     def inner_text(self):
         return self.text
+
+    def get_attribute(self, name):
+        return {
+            "role": self.role,
+            "aria-valuenow": self.aria_valuenow,
+        }.get(name)
 
 
 def test_numeric_setting_limits():
@@ -46,3 +55,10 @@ def test_allowed_values_and_status_text():
     assert not setting_matches(Setting(value="All"), {"allowed_values": ["Selected", "None"]})
     assert setting_matches(Setting(text="Email OTP   No"), {"text": "No"})
     assert not setting_matches(Setting(text="Email OTP   Yes"), {"not_text": "Yes"})
+
+
+def test_slider_setting_uses_aria_value_now():
+    slider = Setting(role="slider", aria_valuenow="30")
+    assert setting_matches(slider, {"value": "30"})
+    assert setting_matches(slider, {"max_value": 30})
+    assert not setting_matches(slider, {"value": "15"})

@@ -127,8 +127,10 @@ each selected CIS finding. The signed-in account must be allowed to read Fabric 
 SharePoint controls with documented SharePoint admin-center settings are captured as browser
 screenshots. When `--powershell` is supplied, it adds read-only PowerShell fallback evidence
 only for SharePoint controls with no browser route (currently Entra B2B integration and
-infected-file download). The admin URL is normally discovered through Exchange Online; use
-`--sharepoint-admin-url https://<tenant>-admin.sharepoint.com` if discovery is unavailable.
+infected-file download). Browser capture requires
+`--sharepoint-admin-url https://<tenant>-admin.sharepoint.com`; PowerShell-only
+audits can discover it through Exchange Online. See the
+[live SharePoint verification and wrapper instructions](docs/sharepoint-ui-verification.md).
 
 PowerShell `.txt` files show the fixed command and its structured output under
 Command and Output headings. The extension also saves the original command results.

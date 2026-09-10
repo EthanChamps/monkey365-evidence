@@ -19,6 +19,10 @@ $ErrorActionPreference = 'Stop'
 # These were confirmed manually from Get-SPOTenant.  The evidence collector will
 # re-query the live tenant and write evidence only for these controls.
 $controls = @('7.2.2', '7.2.4', '7.2.6', '7.2.8', '7.2.9', '7.2.10', '7.3.1')
+if ($BrowserOnly) {
+    $controls = @($controls | Where-Object { $_ -notin @('7.2.2', '7.3.1') })
+    Write-Host 'Browser-only run: excluding PowerShell-only CIS 7.2.2 and 7.3.1.'
+}
 
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) {

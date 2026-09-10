@@ -66,7 +66,7 @@ def navigate_click(page: Page, selector: str, hosts: set[str], timeout: int,
         destination = urljoin(page.url, attributes["href"])
         validate_url(destination, hosts)
         page.goto(destination, wait_until="domcontentloaded", timeout=timeout)
-    elif attributes["role"] in {"tab", "button"} or attributes["tag"] == "button":
+    elif attributes["role"] == "tab":
         locator.click(timeout=timeout)
     else:
         raise RuntimeError("read-only clicks require a navigation link or tab")
@@ -76,6 +76,7 @@ def expand_section(page: Page, selector: str, timeout: int, frame_selector: str 
     """Open an aria disclosure control without changing any tenant setting."""
     scope = page.frame_locator(frame_selector) if frame_selector else page
     locator = scope.locator(selector)
+    locator.wait_for(state="visible", timeout=timeout)
     if locator.count() != 1:
         raise RuntimeError(f"expand control must identify exactly one element: {selector}")
     locator.wait_for(state="visible", timeout=timeout)
@@ -133,7 +134,12 @@ def setting_matches(locator: Locator, check: dict) -> bool:
     if any(key in check for key in (
         "value", "allowed_values", "not_value", "min_value", "max_value"
     )):
-        actual = locator.input_value().strip()
+        actual = (locator.get_attribute("aria-valuenow")
+                  if locator.get_attribute("role") == "slider"
+                  else locator.input_value())
+        if actual is None:
+            raise RuntimeError("setting has no readable value")
+        actual = actual.strip()
         if "value" in check and actual != check["value"]:
             return False
         if "allowed_values" in check and actual not in check["allowed_values"]:
@@ -214,10 +220,14 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
                 group_matches = True
                 for check in group:
                     setting = scope.locator(check["selector"])
-                    if setting.count() == 0 or not setting_matches(setting, check):
+                    if "min_count" not in check:
+                        wait_for_rendered(page, setting)
+                    if not setting_matches(setting, check):
                         group_matches = False
                         failing_checks.append(check)
                 matching_groups.append(group_matches)
+                if group_matches:
+                    break
             if any(matching_groups):
                 failing_checks = [check for check in failing_checks
                                   if check in control.expected_checks]
@@ -225,7 +235,10 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
             screenshot_control(page, replace(control, highlight_selectors=()), destination)
             return CaptureResult(
                 control.cis, "needs_review", destination,
-                detail="The visible setting now matches the expected state; no red box added",
+                detail=("No failure proven by the visible overview. Confirm the configured "
+                        "domain allow list/security groups if external sharing is enabled; "
+                        "no red box added" if control.cis in {"7.2.6", "7.2.8"} else
+                        "The visible setting now matches the expected state; no red box added"),
                 sha256=hashlib.sha256(destination.read_bytes()).hexdigest(), url=page.url,
             )
         if failing_checks and all(check.get("highlight_selector") for check in failing_checks):
