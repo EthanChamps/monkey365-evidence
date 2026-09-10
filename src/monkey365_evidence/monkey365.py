@@ -190,7 +190,9 @@ def import_rule_map(ruleset: Path, findings_directory: Path) -> dict[str, str]:
 
 
 def load_rule_map(path: Path) -> dict[str, str]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    # Windows PowerShell's UTF-8 output includes a BOM. Rule maps are data files,
+    # so accept it just as we do for Monkey365 JSON exports.
+    data = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(data, dict) or any(
         not isinstance(value, str) or not value.strip() for value in data.values()
     ):
