@@ -179,8 +179,8 @@ def capture_page(page: Page, control: Control, output: Path, hosts: set[str],
                 scope.locator(step["selector"]).wait_for(
                     state=step.get("state", "visible"), timeout=timeout
                 )
-        if not control.expected_url or not control.ready_selector:
-            raise RuntimeError("route requires expected_url and ready_selector")
+        if (not control.expected_url and not control.expected_url_pattern) or not control.ready_selector:
+            raise RuntimeError("route requires expected_url or expected_url_pattern and ready_selector")
         if control.expected_url:
             page.wait_for_url(lambda url: str(url) == control.expected_url, timeout=30_000)
         elif control.expected_url_pattern:

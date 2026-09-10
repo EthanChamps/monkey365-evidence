@@ -56,3 +56,18 @@ def test_rejects_both_exact_and_pattern_urls(tmp_path):
     }))
     with pytest.raises(ValueError, match="expected_url or expected_url_pattern"):
         load_manifest(path)
+
+
+def test_accepts_enabled_route_with_pattern_only_url(tmp_path):
+    path = tmp_path / "controls.json"
+    path.write_text(json.dumps({
+        "allowed_hosts": ["admin.microsoft.com"],
+        "controls": [{
+            "cis": "7.2.4", "title": "Example", "start_url": "https://admin.microsoft.com/sharepoint",
+            "expected_url_pattern": "https://[a-z]+-admin\\.sharepoint\\.com/.+",
+            "ready_selector": "text=External sharing",
+        }],
+    }))
+    _, controls = load_manifest(path)
+    assert controls["7.2.4"].expected_url is None
+    assert controls["7.2.4"].expected_url_pattern
