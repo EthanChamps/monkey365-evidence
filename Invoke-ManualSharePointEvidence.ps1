@@ -20,9 +20,13 @@ $ErrorActionPreference = 'Stop'
 # re-query the live tenant and write evidence only for these controls.
 $controls = @('7.2.2', '7.2.4', '7.2.6', '7.2.8', '7.2.9', '7.2.10', '7.3.1')
 
-$tool = Get-Command monkey365-evidence -ErrorAction SilentlyContinue
-if (-not $tool) {
-    throw "monkey365-evidence was not found. From the repository folder, install it with: py -m pip install -e '.[dev]'"
+$python = Get-Command python -ErrorAction SilentlyContinue
+if (-not $python) {
+    throw "Python was not found. Activate the repository virtual environment, then run: python -m pip install -e '.[dev]'"
+}
+& $python.Source -c 'import monkey365_evidence' 2>$null
+if ($LASTEXITCODE -ne 0) {
+    throw "The active Python environment does not contain monkey365-evidence. Run: python -m pip install -e '.[dev]'"
 }
 
 New-Item -ItemType Directory -Path $Output -Force | Out-Null
@@ -67,7 +71,7 @@ if ($NonInteractive) {
 }
 
 Write-Host "Collecting live SharePoint evidence for: $($controls -join ', ')"
-& $tool.Source @captureArguments
+& $python.Source -m monkey365_evidence.cli @captureArguments
 if ($LASTEXITCODE -ne 0) {
     throw "monkey365-evidence exited with code $LASTEXITCODE. Inspect the run-manifest.json in $Output."
 }
