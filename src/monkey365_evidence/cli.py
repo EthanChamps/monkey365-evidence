@@ -58,9 +58,15 @@ def sharepoint_browser_controls(chosen, sharepoint_admin_url: str | None):
     if sharepoint_admin_url is None:
         return chosen
     validate_admin_url(sharepoint_admin_url)
-    home = sharepoint_admin_url.rstrip("/") + "/_layouts/15/online/AdminHome.aspx?modern=true#/home"
-    return [replace(control, start_url=home) if control.cis.startswith("7.") else control
-            for control in chosen]
+    base = sharepoint_admin_url.rstrip("/") + "/_layouts/15/online/AdminHome.aspx?modern=true#"
+    routes = {
+        "7.2.1": "/accessControl",
+    }
+    return [
+        replace(control, start_url=base + routes.get(control.cis, "/sharing"), steps=())
+        if control.cis.startswith("7.") else control
+        for control in chosen
+    ]
 
 
 def main() -> int:

@@ -49,8 +49,9 @@ def test_sharepoint_browser_routes_use_the_supplied_tenant_admin_url():
         [controls["7.2.4"]], "https://example-admin.sharepoint.com/"
     )
     assert bound[0].start_url == (
-        "https://example-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx?modern=true#/home"
+        "https://example-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx?modern=true#/sharing"
     )
+    assert bound[0].steps == ()
 
 
 def test_admin_url_is_strictly_validated():
