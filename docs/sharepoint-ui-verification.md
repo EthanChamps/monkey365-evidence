@@ -1,5 +1,33 @@
 # SharePoint UI verification — 2026-09-10
 
+## Highlight correction after ZIP review
+
+The original run succeeded at collection but its outward CSS outlines were
+clipped. Its `highlighted` flag did not validate the rendered borders. The ZIP
+review found incomplete borders in all five supplied screenshots.
+
+SharePoint screenshots now use fixed, content-fitted overlays outside the
+portal's clipping containers. Slider boxes include their headings; checkbox
+and day-value boxes stop at their visible content. Transparent full-width
+radio hit targets are excluded from measurement. All overlays are removed
+after capture, without changing settings.
+
+The collector checks the actual PNG for all four red borders **before writing
+the evidence file**. A clipped or obscured border fails capture. Browser tests
+cover overflow containers, both 1x/2x pixel density, invisible radio hit targets,
+cleanup on failure, and deliberately missing border pixels.
+
+The corrected live run `evidence/box-verification/20260910T154044.738167Z/`
+produced ten screenshots. Visual inspection and a separate PNG pixel scan
+confirmed all 12 rectangles had complete borders. The same scan failed all
+five images from the original ZIP. The final PowerShell wrapper run with
+in-collector PNG verification also passed, five files and exit code 0:
+`evidence/box-wrapper-verification/20260910T154345.744643Z/`.
+The final all-ten run with in-collector PNG verification passed at
+`evidence/box-final-verification/20260910T154441.919242Z/`.
+
+## Original route verification
+
 The updated collector was run against the authenticated test tenant, not just
 against mocked selectors. No tenant settings were changed.
 

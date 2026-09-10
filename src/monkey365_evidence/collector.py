@@ -13,6 +13,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from .manifest import validate_url
 from .models import CaptureResult, Control
+from .sharepoint_highlights import capture_highlights
 
 MUTATING_LABEL = re.compile(
     r"\b(save|apply|delete|remove|reset|enable|disable|allow|block|create|add|"
@@ -95,6 +96,10 @@ def expand_section(page: Page, selector: str, timeout: int, frame_selector: str 
 
 def screenshot_control(page: Page, control: Control, destination: Path) -> bool:
     """Outline the exact setting in the browser, then restore its presentation."""
+    if control.cis.startswith("7.") and control.highlight_selectors:
+        for selector in control.highlight_selectors:
+            wait_for_rendered(page, page.locator(selector))
+        return capture_highlights(page, control, destination)
     highlighted = []
     scope = page.frame_locator(control.frame_selector) if control.frame_selector else page
     try:

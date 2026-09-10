@@ -11,12 +11,15 @@ from monkey365_evidence.manifest import load_manifest
 SHAREPOINT_FIXTURE = r"""
 <!doctype html>
 <html><head><style>
+[role=main], .ms-Panel-main { padding:12px; }
 [role="slider"] { display:block; width:30px; height:180px; }
 input[type=checkbox], input[type=radio] { opacity:0; }
 </style></head><body>
 <div role="main" data-automation-id="sharingPageMain">
   <h1>Sharing</h1>
+  <span>SharePoint</span>
   <div aria-label="Tenant SharePoint"><div role="slider" aria-valuenow="3"></div></div>
+  <span>OneDrive</span>
   <div aria-label="OneDrive"><div role="slider" aria-valuenow="3"></div></div>
   <button aria-expanded="false" type="button">More external sharing settings</button>
   <section id="advanced" hidden>
